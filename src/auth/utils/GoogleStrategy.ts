@@ -2,17 +2,18 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Profile, Strategy } from 'passport-google-oauth20';
 import { Inject, Injectable } from '@nestjs/common';
 import { AuthService } from '../auth.service';
-
+import { ConfigType } from '@nestjs/config';
+import config from '../../config';
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy) {
   constructor(
     @Inject('AUTH_SERVICE') private readonly authService: AuthService,
+    @Inject(config.KEY) private configService: ConfigType<typeof config>,
   ) {
     super({
-      clientID:
-        '',
-      clientSecret: '',
-      callbackURL: 'http://localhost:8370/api/auth/google/redirect',
+      clientID: configService.GOOGLE_CLIENT_ID,
+      clientSecret: configService.GOOGLE_CLIENT_SECRET,
+      callbackURL: configService.GOOGLE_CALLBACK_URL,
       scope: ['email', 'profile'],
     });
   }
