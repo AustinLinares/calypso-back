@@ -7,10 +7,10 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Schedule } from './schedule.entity';
+import { Schedule } from '../../schedules/entities/schedule.entity';
 import { Service } from 'src/services/entities/service.entity';
 
-@Entity()
+@Entity('workers')
 export class Worker {
   @PrimaryGeneratedColumn()
   id: number;
@@ -49,6 +49,8 @@ export class Worker {
   appointments: Appointment[];
 
   @ManyToMany(() => Service)
-  @JoinTable()
+  @JoinTable({
+    name: 'workers_services',
+  })
   services: Service[];
 }

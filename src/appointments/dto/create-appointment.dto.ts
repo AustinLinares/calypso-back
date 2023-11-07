@@ -3,6 +3,5 @@ export class CreateAppointmentDto {
   end_time: Date;
   sessions: number;
   cost: number;
-  state: string;
   comment?: string;
 }

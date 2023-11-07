@@ -6,6 +6,8 @@ import { UsersModule } from './users/users.module';
 import { WorkersModule } from './workers/workers.module';
 import { AppointmentsModule } from './appointments/appointments.module';
 import { ServicesModule } from './services/services.module';
+import { SchedulesModule } from './schedules/schedules.module';
+import { GroupsModule } from './groups/groups.module';
 
 @Module({
   imports: [
@@ -18,11 +20,14 @@ import { ServicesModule } from './services/services.module';
       database: 'calypso_db',
       entities: [__dirname + '/**/*.entity{.js,.ts}'],
       synchronize: true,
+      logging: true,
     }),
     UsersModule,
     WorkersModule,
     AppointmentsModule,
     ServicesModule,
+    SchedulesModule,
+    GroupsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

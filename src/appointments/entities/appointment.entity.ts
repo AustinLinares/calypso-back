@@ -1,8 +1,15 @@
+import { Service } from 'src/services/entities/service.entity';
 import { User } from 'src/users/entities/user.entity';
 import { Worker } from 'src/workers/entities/worker.entity';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
-@Entity()
+@Entity('appointments')
 export class Appointment {
   @PrimaryGeneratedColumn()
   id: number;
@@ -19,18 +26,23 @@ export class Appointment {
   @Column()
   cost: number;
 
-  @Column()
+  @Column({
+    default: 'pending',
+  })
   state: string;
 
   @Column({ nullable: true, type: 'text' })
   comment: string;
 
   @ManyToOne(() => Worker, (worker) => worker.appointments)
+  @JoinColumn({ name: 'worker_id' })
   worker: Worker;
 
-  //   @ManyToOne(() => Service, (service) => service.id)
-  //   service: Service;
+  @ManyToOne(() => Service, (service) => service.appointments)
+  @JoinColumn({ name: 'service_id' })
+  service: Service;
 
   @ManyToOne(() => User, (user) => user.appointments)
-  user: User; // client
+  @JoinColumn({ name: 'user_id' })
+  user: User;
 }

@@ -19,9 +19,9 @@ export class UsersService {
     if (userFound)
       throw new HttpException('User already exists', HttpStatus.CONFLICT);
 
-    const createdUser = this.userRepository.create(user);
+    const newUser = this.userRepository.create(user);
 
-    return this.userRepository.save(createdUser);
+    return this.userRepository.save(newUser);
   }
 
   findAll() {

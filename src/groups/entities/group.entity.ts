@@ -1,7 +1,8 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { Service } from './service.entity';
+import { Service } from '../../services/entities/service.entity';
+import { IsString } from 'class-validator';
 
-@Entity()
+@Entity('services_groups')
 export class Group {
   @PrimaryGeneratedColumn()
   id: number;
@@ -9,6 +10,7 @@ export class Group {
   @Column({
     unique: true,
   })
+  @IsString()
   name: string;
 
   @OneToMany(() => Service, (service) => service.group)
