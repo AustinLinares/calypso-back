@@ -7,30 +7,38 @@ import { Repository } from 'typeorm';
 
 @Injectable()
 export class UsersService {
+  private readonly relations = ['appointments'];
+
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
   ) {}
 
   async create(user: CreateUserDto) {
     const userFound = await this.userRepository.findOne({
-      where: { email: user.email },
+      where: [{ email: user.email }, { phone: user.phone }],
     });
 
     if (userFound)
-      throw new HttpException('User already exists', HttpStatus.CONFLICT);
+      throw new HttpException(
+        'Already exists a User with same email or phone',
+        HttpStatus.CONFLICT,
+      );
 
     const newUser = this.userRepository.create(user);
 
     return this.userRepository.save(newUser);
   }
 
-  findAll() {
-    return this.userRepository.find();
+  findAll(complete: boolean = true) {
+    return this.userRepository.find({
+      relations: complete ? this.relations : [],
+    });
   }
 
-  async findOne(id: number) {
+  async findOne(id: number, complete: boolean = true) {
     const userFound = await this.userRepository.findOne({
       where: { id },
+      relations: complete ? this.relations : [],
     });
 
     if (!userFound)
@@ -40,12 +48,34 @@ export class UsersService {
   }
 
   async update(id: number, user: UpdateUserDto) {
-    const result = await this.userRepository.update({ id }, user);
+    const userFound = await this.userRepository.findOneBy({
+      id,
+    });
 
-    if (result.affected === 0)
+    if (!userFound)
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
 
-    return this.userRepository.findOne({ where: { id } });
+    if (user.email && user.email !== userFound.email) {
+      const isDuplicateEmail = await this.userRepository.findOneBy({
+        email: user.email,
+      });
+
+      if (isDuplicateEmail)
+        throw new HttpException('Email is already in use', HttpStatus.CONFLICT);
+    }
+
+    if (user.phone && user.phone !== userFound.phone) {
+      const isDuplicatePhone = await this.userRepository.findOneBy({
+        phone: user.phone,
+      });
+
+      if (isDuplicatePhone)
+        throw new HttpException('Phone is already in use', HttpStatus.CONFLICT);
+    }
+
+    const userUpdated = this.userRepository.merge(userFound, user);
+
+    return this.userRepository.save(userUpdated);
   }
 
   async remove(id: number) {
@@ -55,5 +85,33 @@ export class UsersService {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
 
     return result;
+  }
+
+  async hasConflictingAppointment(
+    userId: number,
+    startTime: string,
+    endTime: string,
+  ): Promise<boolean> {
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: ['appointments'],
+    });
+
+    const startDate = new Date(startTime);
+    const endDate = new Date(endTime);
+
+    if (!user) return false;
+
+    const hasConflict = user.appointments.some((appointment) => {
+      const appointmentStart = appointment.start_time;
+      const appointmentEnd = appointment.end_time;
+
+      return (
+        (appointmentStart <= startDate && startDate < appointmentEnd) ||
+        (appointmentStart < endDate && endDate <= appointmentEnd)
+      );
+    });
+
+    return hasConflict;
   }
 }

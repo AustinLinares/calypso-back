@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  ParseIntPipe,
+} from '@nestjs/common';
 import { SchedulesService } from './schedules.service';
 import { CreateScheduleDto } from './dto/create-schedule.dto';
 import { UpdateScheduleDto } from './dto/update-schedule.dto';
@@ -8,8 +17,8 @@ export class SchedulesController {
   constructor(private readonly schedulesService: SchedulesService) {}
 
   @Post()
-  create(@Body() createScheduleDto: CreateScheduleDto) {
-    return this.schedulesService.create(createScheduleDto);
+  create(@Body() schedule: CreateScheduleDto) {
+    return this.schedulesService.create(schedule);
   }
 
   @Get()
@@ -18,17 +27,20 @@ export class SchedulesController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.schedulesService.findOne(+id);
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.schedulesService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateScheduleDto: UpdateScheduleDto) {
-    return this.schedulesService.update(+id, updateScheduleDto);
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() schedule: UpdateScheduleDto,
+  ) {
+    return this.schedulesService.update(id, schedule);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.schedulesService.remove(+id);
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.schedulesService.remove(id);
   }
 }

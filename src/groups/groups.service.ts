@@ -7,6 +7,8 @@ import { Repository } from 'typeorm';
 
 @Injectable()
 export class GroupsService {
+  private readonly relations = ['services'];
+
   constructor(
     @InjectRepository(Group) private readonly groupReposiory: Repository<Group>,
   ) {}
@@ -24,16 +26,16 @@ export class GroupsService {
     return this.groupReposiory.save(newGroup);
   }
 
-  findAll() {
+  findAll(complete: boolean = true) {
     return this.groupReposiory.find({
-      relations: ['services'],
+      relations: complete ? this.relations : [],
     });
   }
 
-  async findOne(id: number) {
+  async findOne(id: number, complete: boolean = true) {
     const groupFound = await this.groupReposiory.findOne({
       where: { id },
-      relations: ['services'],
+      relations: complete ? this.relations : [],
     });
 
     if (!groupFound)
@@ -43,12 +45,25 @@ export class GroupsService {
   }
 
   async update(id: number, group: UpdateGroupDto) {
-    const result = await this.groupReposiory.update({ id }, group);
+    const groupFound = await this.groupReposiory.findOneBy({
+      id,
+    });
 
-    if (result.affected === 0)
+    if (!groupFound)
       throw new HttpException('Group not found', HttpStatus.NOT_FOUND);
 
-    return this.groupReposiory.findOne({ where: { id } });
+    if (group.name && groupFound.name !== group.name) {
+      const isDuplicatedName = await this.groupReposiory.findOneBy({
+        name: group.name,
+      });
+
+      if (isDuplicatedName)
+        throw new HttpException('Group already exists', HttpStatus.CONFLICT);
+    }
+
+    const groupUpdated = this.groupReposiory.merge(groupFound, group);
+
+    return this.groupReposiory.save(groupUpdated);
   }
 
   async remove(id: number) {

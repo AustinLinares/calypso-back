@@ -43,4 +43,9 @@ export class ServicesController {
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.servicesService.remove(id);
   }
+
+  @Get(':id/workers')
+  getWorkers(@Param('id', ParseIntPipe) id: number) {
+    return this.servicesService.workers(id);
+  }
 }

@@ -1,51 +1,77 @@
-import { GroupsService } from './../groups/groups.service';
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  forwardRef,
+} from '@nestjs/common';
 import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Service } from './entities/service.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
+import { GroupsService } from 'src/groups/groups.service';
+import { Group } from 'src/groups/entities/group.entity';
+import { WorkersService } from 'src/workers/workers.service';
+import { Worker } from 'src/workers/entities/worker.entity';
+import { RoomsService } from 'src/rooms/rooms.service';
+import { Room } from 'src/rooms/entities/room.entity';
 
 @Injectable()
 export class ServicesService {
+  private readonly relations = ['group', 'appointments', 'workers', 'rooms'];
+
   constructor(
     @InjectRepository(Service)
     private readonly serviceRepository: Repository<Service>,
     private readonly groupsService: GroupsService,
+    @Inject(forwardRef(() => WorkersService))
+    private readonly workersService: WorkersService,
+    @Inject(forwardRef(() => RoomsService))
+    private readonly roomsService: RoomsService,
   ) {}
 
   async create(service: CreateServiceDto) {
     const serviceFound = await this.serviceRepository.findOne({
-      where: { name: service.name },
+      where: {
+        name: service.name,
+      },
+      relations: this.relations,
     });
+    let group: Group | null = null;
+    let rooms: Room[] = [];
+    let workers: Worker[] = [];
 
     if (serviceFound)
       throw new HttpException('Service already exists', HttpStatus.CONFLICT);
 
-    const group = await this.groupsService.findOne(service.group_id);
+    if (service.group_id)
+      group = await this.groupsService.findOne(service.group_id, false);
 
-    if (!group) {
-      throw new HttpException('Group not found', HttpStatus.NOT_FOUND);
-    }
+    if (service.rooms_ids)
+      rooms = await this.roomsService.getRoomsByIds(service.rooms_ids);
 
-    const newService = this.serviceRepository.create({
-      ...service,
-      group,
-    });
+    if (service.workers_ids)
+      workers = await this.workersService.getWorkersByIds(service.workers_ids);
+
+    const newService = this.serviceRepository.create(service);
+    newService.group = group;
+    newService.rooms = rooms;
+    newService.workers = workers;
 
     return this.serviceRepository.save(newService);
   }
 
-  findAll() {
+  findAll(complete: boolean = true) {
     return this.serviceRepository.find({
-      relations: ['group', 'appointments'],
+      relations: complete ? this.relations : [],
     });
   }
 
-  async findOne(id: number) {
+  async findOne(id: number, complete: boolean = true) {
     const serviceFound = await this.serviceRepository.findOne({
       where: { id },
-      relations: ['group', 'appointments'],
+      relations: complete ? this.relations : [],
     });
 
     if (!serviceFound)
@@ -55,28 +81,66 @@ export class ServicesService {
   }
 
   async update(id: number, service: UpdateServiceDto) {
-    const existingService = await this.serviceRepository.findOne({
+    const serviceFound = await this.serviceRepository.findOne({
       where: { id },
-      relations: ['group'],
+      relations: this.relations,
     });
+    let roomsToAdd: Room[] = [];
+    let filteredRooms: Room[] = [];
+    let workersToAdd: Worker[] = [];
+    let filteredWorkers: Worker[] = [];
 
-    if (!existingService)
+    if (!serviceFound)
       throw new HttpException('Service not found', HttpStatus.NOT_FOUND);
 
-    const group = await this.groupsService.findOne(service.group_id);
+    if (service.name && serviceFound.name !== service.name) {
+      const isDuplicatedName = await this.serviceRepository.findOneBy({
+        name: service.name,
+      });
 
-    if (!group)
-      throw new HttpException('Group not found', HttpStatus.NOT_FOUND);
+      if (isDuplicatedName)
+        throw new HttpException(
+          'Already exists a service with the same name',
+          HttpStatus.CONFLICT,
+        );
+    }
 
-    delete group.services;
+    if (
+      service.group_id &&
+      (serviceFound.group === null ||
+        serviceFound.group.id !== service.group_id)
+    ) {
+      const group = await this.groupsService.findOne(service.group_id, false);
+      serviceFound.group = group;
+    }
 
-    const updatedService = {
-      ...existingService,
-      ...service,
-      group,
-    };
+    if (service.group_id === null) serviceFound.group = null;
 
-    delete updatedService.group_id;
+    if (service.add_rooms_ids) {
+      roomsToAdd = await this.roomsService.getRoomsByIds(service.add_rooms_ids);
+    }
+
+    if (service.remove_rooms_ids) {
+      filteredRooms = serviceFound.rooms.filter(
+        (room) => !service.remove_rooms_ids.includes(room.id),
+      );
+    }
+
+    if (service.add_workers_ids) {
+      workersToAdd = await this.workersService.getWorkersByIds(
+        service.add_workers_ids,
+      );
+    }
+
+    if (service.remove_workers_ids) {
+      filteredWorkers = serviceFound.workers.filter(
+        (worker) => !service.remove_workers_ids.includes(worker.id),
+      );
+    }
+
+    const updatedService = this.serviceRepository.merge(serviceFound, service);
+    updatedService.rooms = [...filteredRooms, ...roomsToAdd];
+    updatedService.workers = [...filteredWorkers, ...workersToAdd];
 
     return this.serviceRepository.save(updatedService);
   }
@@ -88,5 +152,15 @@ export class ServicesService {
       throw new HttpException('Service not found', HttpStatus.NOT_FOUND);
 
     return result;
+  }
+
+  async workers(id: number) {
+    const service = await this.findOne(id);
+
+    return service.workers;
+  }
+
+  getServicesByIds(ids: number[]) {
+    return this.serviceRepository.findBy({ id: In(ids) });
   }
 }

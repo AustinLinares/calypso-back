@@ -1,4 +1,11 @@
-import { IsInt, IsPositive, IsString } from 'class-validator';
+import {
+  IsInt,
+  IsOptional,
+  IsPositive,
+  IsString,
+  Validate,
+} from 'class-validator';
+import { IsNumberArray } from 'src/utils/customValidators/IsNumberArray';
 
 export class CreateServiceDto {
   @IsString()
@@ -17,5 +24,18 @@ export class CreateServiceDto {
 
   @IsInt()
   @IsPositive()
-  group_id: number;
+  @IsOptional()
+  group_id?: number;
+
+  @Validate(IsNumberArray, {
+    message: 'You should enter an array of workers ids',
+  })
+  @IsOptional()
+  workers_ids?: number[];
+
+  @Validate(IsNumberArray, {
+    message: 'You should enter an array of rooms ids',
+  })
+  @IsOptional()
+  rooms_ids?: number[];
 }

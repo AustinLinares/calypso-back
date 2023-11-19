@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { WorkersService } from './workers.service';
 import { CreateWorkerDto } from './dto/create-worker.dto';
@@ -16,8 +17,8 @@ export class WorkersController {
   constructor(private readonly workersService: WorkersService) {}
 
   @Post()
-  create(@Body() createWorkerDto: CreateWorkerDto) {
-    return this.workersService.create(createWorkerDto);
+  create(@Body() worker: CreateWorkerDto) {
+    return this.workersService.create(worker);
   }
 
   @Get()
@@ -26,17 +27,25 @@ export class WorkersController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.workersService.findOne(+id);
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.workersService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateWorkerDto: UpdateWorkerDto) {
-    return this.workersService.update(+id, updateWorkerDto);
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() worker: UpdateWorkerDto,
+  ) {
+    return this.workersService.update(id, worker);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.workersService.remove(+id);
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.workersService.softDelete(id);
+  }
+
+  @Get(':id/services')
+  getServices(@Param('id', ParseIntPipe) id: number) {
+    return this.workersService.getServices(id);
   }
 }

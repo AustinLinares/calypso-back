@@ -6,6 +6,9 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Worker } from '../../workers/entities/worker.entity';
+import { IsNumber, IsString, Length, Validate } from 'class-validator';
+import { IsDayOfWeek } from 'src/utils/customValidators/IsDayOfWeek';
+import { IsTime } from 'src/utils/customValidators/IsTime';
 
 @Entity('workers_schedules')
 export class Schedule {
@@ -13,17 +16,31 @@ export class Schedule {
   id: number;
 
   @Column()
+  @IsNumber()
+  @Validate(IsDayOfWeek, {
+    message: 'Invalid day of week',
+  })
   day: number;
 
   @Column({
-    type: 'datetime',
+    length: 5,
   })
-  start_time: Date;
+  @IsString()
+  @Length(5)
+  @Validate(IsTime, {
+    message: 'Invalid Time',
+  })
+  start_time: string;
 
   @Column({
-    type: 'datetime',
+    length: 5,
   })
-  end_time: Date;
+  @IsString()
+  @Length(5)
+  @Validate(IsTime, {
+    message: 'Invalid Time',
+  })
+  end_time: string;
 
   @ManyToOne(() => Worker, (worker) => worker.schedules)
   @JoinColumn({ name: 'worker_id' })

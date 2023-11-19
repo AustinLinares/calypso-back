@@ -17,8 +17,8 @@ export class GroupsController {
   constructor(private readonly groupsService: GroupsService) {}
 
   @Post()
-  create(@Body() createGroupDto: CreateGroupDto) {
-    return this.groupsService.create(createGroupDto);
+  create(@Body() group: CreateGroupDto) {
+    return this.groupsService.create(group);
   }
 
   @Get()
@@ -32,11 +32,8 @@ export class GroupsController {
   }
 
   @Patch(':id')
-  update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() updateGroupDto: UpdateGroupDto,
-  ) {
-    return this.groupsService.update(id, updateGroupDto);
+  update(@Param('id', ParseIntPipe) id: number, @Body() group: UpdateGroupDto) {
+    return this.groupsService.update(id, group);
   }
 
   @Delete(':id')

@@ -8,6 +8,7 @@ import { AppointmentsModule } from './appointments/appointments.module';
 import { ServicesModule } from './services/services.module';
 import { SchedulesModule } from './schedules/schedules.module';
 import { GroupsModule } from './groups/groups.module';
+import { RoomsModule } from './rooms/rooms.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { GroupsModule } from './groups/groups.module';
     ServicesModule,
     SchedulesModule,
     GroupsModule,
+    RoomsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

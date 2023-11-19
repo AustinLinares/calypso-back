@@ -12,7 +12,9 @@ export class User {
   @Length(0, 20)
   name: string;
 
-  @Column()
+  @Column({
+    unique: true,
+  })
   @IsString()
   @IsMobilePhone('es-CL')
   phone: string;

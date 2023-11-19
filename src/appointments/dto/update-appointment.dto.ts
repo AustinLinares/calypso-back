@@ -1,6 +1,10 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateAppointmentDto } from './create-appointment.dto';
+import { SessionState } from '../interfaces/SessionState';
+import { IsEnum, IsOptional } from 'class-validator';
 
-export class UpdateAppointmentDto extends PartialType(CreateAppointmentDto) {
-  state: string;
+export class UpdateAppointmentDto {
+  @IsEnum(SessionState, {
+    message: 'State must be one of: pending, booked, completed, canceled',
+  })
+  @IsOptional()
+  state?: SessionState;
 }

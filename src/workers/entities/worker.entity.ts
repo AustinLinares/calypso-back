@@ -1,6 +1,7 @@
 import { Appointment } from 'src/appointments/entities/appointment.entity';
 import {
   Column,
+  DeleteDateColumn,
   Entity,
   JoinTable,
   ManyToMany,
@@ -9,6 +10,13 @@ import {
 } from 'typeorm';
 import { Schedule } from '../../schedules/entities/schedule.entity';
 import { Service } from 'src/services/entities/service.entity';
+import {
+  IsBoolean,
+  IsDate,
+  IsEmail,
+  IsMobilePhone,
+  IsString,
+} from 'class-validator';
 
 @Entity('workers')
 export class Worker {
@@ -19,18 +27,30 @@ export class Worker {
   name: string;
 
   @Column()
+  @IsString()
+  @IsMobilePhone('es-CL')
   phone: string;
 
   @Column()
+  @IsString()
+  @IsEmail()
   email: string;
 
-  @Column()
-  is_active: boolean;
+  @Column({
+    default: true,
+  })
+  @IsBoolean()
+  is_available: boolean;
 
   @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
+  @IsDate()
   created_at: Date;
 
-  @Column({ type: 'datetime', nullable: true })
+  @DeleteDateColumn({
+    nullable: true,
+    default: null,
+  })
+  @IsDate()
   deleted_at: Date;
 
   @Column()
@@ -48,7 +68,9 @@ export class Worker {
   @OneToMany(() => Appointment, (appointment) => appointment.worker)
   appointments: Appointment[];
 
-  @ManyToMany(() => Service)
+  @ManyToMany(() => Service, (service) => service.workers, {
+    cascade: true,
+  })
   @JoinTable({
     name: 'workers_services',
   })
