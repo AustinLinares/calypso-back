@@ -9,7 +9,7 @@ import { ServicesModule } from './services/services.module';
 import { SchedulesModule } from './schedules/schedules.module';
 import { GroupsModule } from './groups/groups.module';
 import { RoomsModule } from './rooms/rooms.module';
-import { RoomsSchedulesModule } from './rooms_schedules/rooms_schedules.module';
+// import { RoomsSchedulesModule } from './rooms_schedules/rooms_schedules.module';
 
 @Module({
   imports: [
@@ -31,7 +31,7 @@ import { RoomsSchedulesModule } from './rooms_schedules/rooms_schedules.module';
     SchedulesModule,
     GroupsModule,
     RoomsModule,
-    RoomsSchedulesModule,
+    // RoomsSchedulesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
