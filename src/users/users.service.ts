@@ -87,31 +87,31 @@ export class UsersService {
     return result;
   }
 
-  async hasConflictingAppointment(
-    userId: number,
-    startTime: string,
-    endTime: string,
-  ): Promise<boolean> {
-    const user = await this.userRepository.findOne({
-      where: { id: userId },
-      relations: ['appointments'],
-    });
+  // async hasConflictingAppointment(
+  //   userId: number,
+  //   startTime: string,
+  //   endTime: string,
+  // ): Promise<boolean> {
+  //   const user = await this.userRepository.findOne({
+  //     where: { id: userId },
+  //     relations: ['appointments'],
+  //   });
 
-    const startDate = new Date(startTime);
-    const endDate = new Date(endTime);
+  //   const startDate = new Date(startTime);
+  //   const endDate = new Date(endTime);
 
-    if (!user) return false;
+  //   if (!user) return false;
 
-    const hasConflict = user.appointments.some((appointment) => {
-      const appointmentStart = appointment.start_time;
-      const appointmentEnd = appointment.end_time;
+  //   const hasConflict = user.appointments.some((appointment) => {
+  //     const appointmentStart = appointment.start_time;
+  //     const appointmentEnd = appointment.end_time;
 
-      return (
-        (appointmentStart <= startDate && startDate < appointmentEnd) ||
-        (appointmentStart < endDate && endDate <= appointmentEnd)
-      );
-    });
+  //     return (
+  //       (appointmentStart <= startDate && startDate < appointmentEnd) ||
+  //       (appointmentStart < endDate && endDate <= appointmentEnd)
+  //     );
+  //   });
 
-    return hasConflict;
-  }
+  //   return hasConflict;
+  // }
 }

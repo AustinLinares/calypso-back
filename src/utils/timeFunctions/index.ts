@@ -1,22 +1,26 @@
-import { isBefore, parse } from 'date-fns';
-
 export interface TimeRange {
-  start_time: Date;
-  end_time: Date;
+  start: Date;
+  end: Date;
 }
 
-export function newTime(time: string) {
-  return parse(time, 'HH:mm', new Date());
+export function dateFromHours(hours: string) {
+  const now = new Date();
+  const [year, month, date] = [
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate(),
+  ];
+  const dateString = `${year}-${month}-${date}T${hours}-03:00`;
+
+  return new Date(dateString);
 }
 
-export function areTimeRangesValid(range1: TimeRange, range2: TimeRange) {
-  const case1 = isBefore(range1.end_time, range2.start_time);
+export function timeOnDifferentTimeZone(
+  date: Date,
+  countryCode: string = 'es-CL',
+  timeZone: string = 'America/Santiago',
+) {
+  const localeString = date.toLocaleString(countryCode, { timeZone });
 
-  const case2 = isBefore(range2.end_time, range1.start_time);
-
-  const case3 = range1.end_time.getTime() === range2.start_time.getTime();
-
-  const case4 = range2.end_time.getTime() === range1.start_time.getTime();
-
-  return case1 || case2 || case3 || case4;
+  return localeString.split(' ')[1];
 }

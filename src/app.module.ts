@@ -9,6 +9,7 @@ import { ServicesModule } from './services/services.module';
 import { SchedulesModule } from './schedules/schedules.module';
 import { GroupsModule } from './groups/groups.module';
 import { RoomsModule } from './rooms/rooms.module';
+import { RoomsSchedulesModule } from './rooms_schedules/rooms_schedules.module';
 
 @Module({
   imports: [
@@ -21,7 +22,7 @@ import { RoomsModule } from './rooms/rooms.module';
       database: 'calypso_db',
       entities: [__dirname + '/**/*.entity{.js,.ts}'],
       synchronize: true,
-      logging: true,
+      timezone: '-03:00',
     }),
     UsersModule,
     WorkersModule,
@@ -30,6 +31,7 @@ import { RoomsModule } from './rooms/rooms.module';
     SchedulesModule,
     GroupsModule,
     RoomsModule,
+    RoomsSchedulesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

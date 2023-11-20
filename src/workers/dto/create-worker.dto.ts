@@ -34,5 +34,5 @@ export class CreateWorkerDto {
   @Validate(IsNumberArray, {
     message: 'Only valid a array of numbers on services_id',
   })
-  services_id: number[];
+  services_ids: number[];
 }

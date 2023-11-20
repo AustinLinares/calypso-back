@@ -1,4 +1,4 @@
-import { IsNumber, IsString, Length, Validate } from 'class-validator';
+import { IsNumber, IsString, Validate } from 'class-validator';
 import { IsDayOfWeek } from 'src/utils/customValidators/IsDayOfWeek';
 import { IsTime } from 'src/utils/customValidators/IsTime';
 
@@ -10,16 +10,14 @@ export class CreateScheduleDto {
   day: number;
 
   @IsString()
-  @Length(5)
   @Validate(IsTime, {
-    message: 'Invalid Time',
+    message: 'Invalid Time, the correct format is HH:mm:ss',
   })
   start_time: string;
 
   @IsString()
-  @Length(5)
   @Validate(IsTime, {
-    message: 'Invalid Time',
+    message: 'Invalid Time, the correct format is HH:mm:ss',
   })
   end_time: string;
 

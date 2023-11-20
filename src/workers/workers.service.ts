@@ -32,7 +32,7 @@ export class WorkersService {
       );
 
     const foundServices = await this.servicesService.getServicesByIds(
-      worker.services_id,
+      worker.services_ids,
     );
 
     const newWorker = this.workerRepository.create(worker);

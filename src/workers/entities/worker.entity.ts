@@ -1,6 +1,7 @@
 import { Appointment } from 'src/appointments/entities/appointment.entity';
 import {
   Column,
+  CreateDateColumn,
   DeleteDateColumn,
   Entity,
   JoinTable,
@@ -42,8 +43,7 @@ export class Worker {
   @IsBoolean()
   is_available: boolean;
 
-  @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
-  @IsDate()
+  @CreateDateColumn()
   created_at: Date;
 
   @DeleteDateColumn({
@@ -75,4 +75,12 @@ export class Worker {
     name: 'workers_services',
   })
   services: Service[];
+
+  // @ManyToMany(() => Service, (service) => service.workers, {
+  //   cascade: true,
+  // })
+  // @JoinTable({
+  //   name: 'workers_services',
+  // })
+  // services: Service[];
 }

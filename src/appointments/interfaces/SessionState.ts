@@ -1,6 +1,6 @@
 export enum SessionState {
-  Pending = 'pending',
-  Booked = 'booked',
-  Completed = 'completed',
-  Canceled = 'candeled',
+  PENDING = 'pending',
+  BOOKED = 'booked',
+  COMPLETED = 'completed',
+  CANCELED = 'canceled',
 }

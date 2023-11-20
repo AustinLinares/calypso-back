@@ -15,7 +15,9 @@ export class Room {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({
+    unique: true,
+  })
   @IsString()
   name: string;
 
@@ -27,4 +29,7 @@ export class Room {
     name: 'rooms_services',
   })
   services: Service[];
+
+  // @OneToMany(() => RoomsSchedule, (schedule) => schedule.room)
+  // schedules: RoomsSchedule[];
 }

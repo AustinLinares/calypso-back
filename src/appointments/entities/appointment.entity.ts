@@ -8,6 +8,7 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { SessionState } from '../interfaces/SessionState';
 import { Room } from 'src/rooms/entities/room.entity';
@@ -17,35 +18,48 @@ export class Appointment {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'datetime' })
+  @Column({ type: 'date' })
   @IsDate()
-  start_time: Date;
+  date: Date;
 
-  @Column({ type: 'datetime' })
+  @Column({ type: 'time' })
   @IsDate()
-  end_time: Date;
+  start_time: string;
 
-  @Column()
+  @Column({ type: 'time' })
+  @IsDate()
+  end_time: string;
+
+  @Column({
+    type: 'bit',
+  })
   @IsInt()
   @IsPositive()
   sessions: number;
 
-  @Column()
+  @Column({
+    type: 'int',
+    unsigned: true,
+  })
   @IsInt()
   @IsPositive()
   cost: number;
 
-  @Column({ default: SessionState.Pending })
+  @Column({
+    type: 'enum',
+    enum: SessionState,
+    default: SessionState.PENDING,
+  })
   @IsEnum(SessionState, {
     message: 'State must be one of: pending, booked, completed, canceled',
   })
   state: SessionState;
 
-  @Column({ nullable: true, type: 'text' })
+  @Column({ nullable: true, type: 'text', default: null })
   @IsString()
   comment: string;
 
-  @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
+  @UpdateDateColumn()
   @IsDate()
   updated_at: Date;
 

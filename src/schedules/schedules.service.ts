@@ -3,14 +3,10 @@ import { CreateScheduleDto } from './dto/create-schedule.dto';
 import { UpdateScheduleDto } from './dto/update-schedule.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { isBefore } from 'date-fns';
+import { areIntervalsOverlapping, isBefore } from 'date-fns';
 import { Schedule } from './entities/schedule.entity';
 import { WorkersService } from 'src/workers/workers.service';
-import {
-  TimeRange,
-  areTimeRangesValid,
-  newTime,
-} from 'src/utils/timeFunctions';
+import { TimeRange, dateFromHours } from 'src/utils/timeFunctions';
 
 @Injectable()
 export class SchedulesService {
@@ -29,30 +25,30 @@ export class SchedulesService {
     );
 
     const range: TimeRange = {
-      start_time: newTime(schedule.start_time),
-      end_time: newTime(schedule.end_time),
+      start: dateFromHours(schedule.start_time),
+      end: dateFromHours(schedule.end_time),
     };
 
-    if (isBefore(range.end_time, range.start_time))
+    if (isBefore(range.end, range.start))
       throw new HttpException(
         'end_time is greater than startTime',
         HttpStatus.BAD_REQUEST,
       );
 
-    const matchedSchedules = await this.scheduleRepository.find({
-      where: {
-        worker: workerFound,
-        day: schedule.day,
+    const matchedSchedules = await this.scheduleRepository.findBy({
+      worker: {
+        id: workerFound.id,
       },
+      day: schedule.day,
     });
 
     for (const matchSchedule of matchedSchedules) {
       const matchedRange: TimeRange = {
-        start_time: newTime(matchSchedule.start_time),
-        end_time: newTime(matchSchedule.end_time),
+        start: dateFromHours(matchSchedule.start_time),
+        end: dateFromHours(matchSchedule.end_time),
       };
 
-      if (!areTimeRangesValid(matchedRange, range))
+      if (areIntervalsOverlapping(matchedRange, range))
         throw new HttpException(
           'The range of hours has conflict with other Schedule in the same day',
           HttpStatus.CONFLICT,
@@ -97,13 +93,14 @@ export class SchedulesService {
     );
 
     const range: TimeRange = {
-      start_time: newTime(existingSchedule.start_time),
-      end_time: newTime(existingSchedule.end_time),
+      start: dateFromHours(existingSchedule.start_time),
+      end: dateFromHours(existingSchedule.end_time),
     };
-    if (schedule.start_time) range.start_time = newTime(schedule.start_time);
-    if (schedule.end_time) range.end_time = newTime(schedule.end_time);
 
-    if (isBefore(range.end_time, range.start_time))
+    if (schedule.start_time) range.start = dateFromHours(schedule.start_time);
+    if (schedule.end_time) range.end = dateFromHours(schedule.end_time);
+
+    if (isBefore(range.end, range.start))
       throw new HttpException(
         'end_time is greater than startTime',
         HttpStatus.BAD_REQUEST,
@@ -111,7 +108,9 @@ export class SchedulesService {
 
     const matchedSchedules = await this.scheduleRepository.find({
       where: {
-        worker: workerFound,
+        worker: {
+          id: workerFound.id,
+        },
         day: schedule.day,
       },
     });
@@ -120,11 +119,11 @@ export class SchedulesService {
       if (matchSchedule.id === id) continue;
 
       const matchedRange: TimeRange = {
-        start_time: newTime(matchSchedule.start_time),
-        end_time: newTime(matchSchedule.end_time),
+        start: dateFromHours(matchSchedule.start_time),
+        end: dateFromHours(matchSchedule.end_time),
       };
 
-      if (!areTimeRangesValid(matchedRange, range))
+      if (areIntervalsOverlapping(matchedRange, range))
         throw new HttpException(
           'The range of hours has conflict with other Schedule in the same day',
           HttpStatus.CONFLICT,

@@ -6,7 +6,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Worker } from '../../workers/entities/worker.entity';
-import { IsNumber, IsString, Length, Validate } from 'class-validator';
+import { IsInt, IsPositive, Validate } from 'class-validator';
 import { IsDayOfWeek } from 'src/utils/customValidators/IsDayOfWeek';
 import { IsTime } from 'src/utils/customValidators/IsTime';
 
@@ -15,30 +15,30 @@ export class Schedule {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  @IsNumber()
+  @Column({
+    type: 'tinyint',
+    unsigned: true,
+  })
+  @IsInt()
+  @IsPositive()
   @Validate(IsDayOfWeek, {
     message: 'Invalid day of week',
   })
   day: number;
 
   @Column({
-    length: 5,
+    type: 'time',
   })
-  @IsString()
-  @Length(5)
   @Validate(IsTime, {
-    message: 'Invalid Time',
+    message: 'Invalid Time, the correct format is HH:mm:ss',
   })
   start_time: string;
 
   @Column({
-    length: 5,
+    type: 'time',
   })
-  @IsString()
-  @Length(5)
   @Validate(IsTime, {
-    message: 'Invalid Time',
+    message: 'Invalid Time, the correct format is HH:mm:ss',
   })
   end_time: string;
 

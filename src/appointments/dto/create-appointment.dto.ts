@@ -1,20 +1,32 @@
 import {
-  IsDateString,
   IsInt,
   IsNumber,
   IsOptional,
   IsPositive,
   IsString,
+  Validate,
 } from 'class-validator';
+import { IsShortDate } from 'src/utils/customValidators/IsShortDate';
+import { IsTime } from 'src/utils/customValidators/IsTime';
 
 export class CreateAppointmentDto {
   @IsString()
-  @IsDateString()
+  @Validate(IsShortDate, {
+    message: 'Invalid Date, the correct format is dd-mm-yyyy',
+  })
+  date: string;
+
+  @IsString()
+  @Validate(IsTime, {
+    message: 'Invalid Time, the correct format is HH:mm:ss',
+  })
   start_time: string;
 
   @IsString()
-  @IsDateString()
-  end_time: string; // esto no va
+  @Validate(IsTime, {
+    message: 'Invalid Time, the correct format is HH:mm:ss',
+  })
+  end_time: string;
 
   @IsInt()
   @IsPositive()
@@ -26,7 +38,7 @@ export class CreateAppointmentDto {
 
   @IsInt()
   @IsPositive()
-  worker_id: number; // esto no va
+  worker_id: number;
 
   @IsNumber()
   @IsPositive()
@@ -35,4 +47,8 @@ export class CreateAppointmentDto {
   @IsNumber()
   @IsPositive()
   user_id: number;
+
+  @IsNumber()
+  @IsPositive()
+  room_id: number;
 }

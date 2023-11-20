@@ -1,3 +1,4 @@
+import { RoomsService } from './../rooms/rooms.service';
 import { ServicesService } from './../services/services.service';
 import { WorkersService } from './../workers/workers.service';
 import { UsersService } from './../users/users.service';
@@ -7,7 +8,6 @@ import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Appointment } from './entities/appointment.entity';
 import { Repository } from 'typeorm';
-import {} from 'src/services/services.service';
 
 @Injectable()
 export class AppointmentsService {
@@ -19,6 +19,7 @@ export class AppointmentsService {
     private readonly usersService: UsersService,
     private readonly servicesService: ServicesService,
     private readonly workersService: WorkersService,
+    private readonly roomsService: RoomsService,
   ) {}
 
   async create(appointment: CreateAppointmentDto) {
@@ -32,6 +33,10 @@ export class AppointmentsService {
     );
     const workerFound = await this.workersService.findOne(
       appointment.worker_id,
+      false,
+    );
+    const roomFound = await this.roomsService.findOne(
+      appointment.room_id,
       false,
     );
 
@@ -57,18 +62,18 @@ export class AppointmentsService {
         HttpStatus.BAD_REQUEST,
       );
 
-    const hasConflictingAppointment =
-      await this.usersService.hasConflictingAppointment(
-        userFound.id,
-        appointment.start_time,
-        appointment.end_time,
-      );
+    // const hasConflictingAppointment =
+    //   await this.usersService.hasConflictingAppointment(
+    //     userFound.id,
+    //     appointment.start_time,
+    //     appointment.end_time,
+    //   );
 
-    if (hasConflictingAppointment)
-      throw new HttpException(
-        'User already has an appointment at the selected time',
-        HttpStatus.BAD_REQUEST,
-      );
+    // if (hasConflictingAppointment)
+    //   throw new HttpException(
+    //     'User already has an appointment at the selected time',
+    //     HttpStatus.BAD_REQUEST,
+    //   );
 
     const newAppointment = this.appointmentRepository.create(appointment);
     newAppointment.cost = serviceFound.cost_per_session * appointment.sessions;

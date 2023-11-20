@@ -30,12 +30,18 @@ export class Service {
   @IsString()
   description: string;
 
-  @Column()
+  @Column({
+    type: 'smallint',
+    unsigned: true,
+  })
   @IsInt()
   @IsPositive()
   minutes_per_session: number;
 
-  @Column()
+  @Column({
+    type: 'int',
+    unsigned: true,
+  })
   @IsInt()
   @IsPositive()
   cost_per_session: number;
