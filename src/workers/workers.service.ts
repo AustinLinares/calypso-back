@@ -1,3 +1,4 @@
+import { RoomsSchedulesService } from './../rooms_schedules/rooms_schedules.service';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateWorkerDto } from './dto/create-worker.dto';
 import { UpdateWorkerDto } from './dto/update-worker.dto';
@@ -6,15 +7,22 @@ import { In, IsNull, Repository } from 'typeorm';
 import { Worker } from './entities/worker.entity';
 import { ServicesService } from 'src/services/services.service';
 import { Service } from 'src/services/entities/service.entity';
+import { RoomsSchedule } from 'src/rooms_schedules/entities/rooms_schedule.entity';
 
 @Injectable()
 export class WorkersService {
-  private readonly relations = ['schedules', 'appointments', 'services'];
+  private readonly relations = [
+    'schedules',
+    'appointments',
+    'services',
+    'room_schedules',
+  ];
 
   constructor(
     @InjectRepository(Worker)
     private readonly workerRepository: Repository<Worker>,
     private readonly servicesService: ServicesService,
+    private readonly roomsSchedulesService: RoomsSchedulesService,
   ) {}
 
   async create(worker: CreateWorkerDto) {
@@ -34,9 +42,13 @@ export class WorkersService {
     const foundServices = await this.servicesService.getServicesByIds(
       worker.services_ids,
     );
+    const foundRoomSchedules = await this.roomsSchedulesService.getByIds(
+      worker.rooms_schedules_ids,
+    );
 
     const newWorker = this.workerRepository.create(worker);
     newWorker.services = foundServices;
+    newWorker.room_schedules = foundRoomSchedules;
 
     return this.workerRepository.save(newWorker);
   }
@@ -66,6 +78,8 @@ export class WorkersService {
     const workerFound = await this.findOne(id, true);
     let servicesToAdd: Service[] = [];
     let filteredServices: Service[] = [];
+    let roomsSchedulesToAdd: RoomsSchedule[] = [];
+    let filteredRoomsSchedules: RoomsSchedule[] = [];
 
     if (!workerFound)
       throw new HttpException('Worker not found', HttpStatus.NOT_FOUND);
@@ -103,8 +117,23 @@ export class WorkersService {
         (service) => !worker.services_to_delete.includes(service.id),
       );
 
+    if (worker.rooms_schedules_to_add)
+      roomsSchedulesToAdd = await this.roomsSchedulesService.getByIds(
+        worker.services_to_add,
+      );
+
+    if (worker.rooms_schedules_to_delete)
+      filteredRoomsSchedules = workerFound.room_schedules.filter(
+        (roomSchedule) =>
+          !worker.rooms_schedules_to_delete.includes(roomSchedule.id),
+      );
+
     const updatedWorker = this.workerRepository.merge(workerFound, worker);
     updatedWorker.services = [...filteredServices, ...servicesToAdd];
+    updatedWorker.room_schedules = [
+      ...filteredRoomsSchedules,
+      ...roomsSchedulesToAdd,
+    ];
 
     return this.workerRepository.save(updatedWorker);
   }
@@ -147,7 +176,7 @@ export class WorkersService {
     return worker.services;
   }
 
-  getWorkersByIds(ids: number[]) {
+  getByIds(ids: number[]) {
     return this.workerRepository.findBy({
       id: In(ids),
     });

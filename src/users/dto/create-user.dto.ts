@@ -2,7 +2,7 @@ import { IsEmail, IsMobilePhone, IsString, Length } from 'class-validator';
 
 export class CreateUserDto {
   @IsString()
-  @Length(0, 20)
+  @Length(3, 20)
   name: string;
 
   @IsString()
@@ -12,4 +12,7 @@ export class CreateUserDto {
   @IsString()
   @IsEmail()
   email: string;
+
+  @IsString()
+  hash_password: string;
 }

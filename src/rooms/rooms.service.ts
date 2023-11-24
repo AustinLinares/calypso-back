@@ -15,7 +15,7 @@ import { Service } from 'src/services/entities/service.entity';
 
 @Injectable()
 export class RoomsService {
-  private readonly relations = ['appointments', 'services'];
+  private readonly relations = ['appointments', 'services', 'schedules'];
 
   constructor(
     @InjectRepository(Room) private readonly roomRepository: Repository<Room>,
@@ -41,6 +41,7 @@ export class RoomsService {
     const newRoom = this.roomRepository.create(room);
     newRoom.services = services;
     newRoom.appointments = [];
+    newRoom.schedules = [];
 
     return this.roomRepository.save(newRoom);
   }

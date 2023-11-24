@@ -32,7 +32,12 @@ export class CreateWorkerDto {
 
   @IsArray()
   @Validate(IsNumberArray, {
-    message: 'Only valid a array of numbers on services_id',
+    message: 'Only valid a array of numbers on services_ids',
   })
   services_ids: number[];
+
+  @Validate(IsNumberArray, {
+    message: 'Only valid a array of numbers on rooms_schedules_ids',
+  })
+  rooms_schedules_ids: number[];
 }

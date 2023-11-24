@@ -18,6 +18,7 @@ import {
   IsMobilePhone,
   IsString,
 } from 'class-validator';
+import { RoomsSchedule } from 'src/rooms_schedules/entities/rooms_schedule.entity';
 
 @Entity('workers')
 export class Worker {
@@ -76,11 +77,11 @@ export class Worker {
   })
   services: Service[];
 
-  // @ManyToMany(() => Service, (service) => service.workers, {
-  //   cascade: true,
-  // })
-  // @JoinTable({
-  //   name: 'workers_services',
-  // })
-  // services: Service[];
+  @ManyToMany(() => RoomsSchedule, (roomSchedule) => roomSchedule.workers, {
+    cascade: true,
+  })
+  @JoinTable({
+    name: 'workers_room_schedule',
+  })
+  room_schedules: RoomsSchedule[];
 }

@@ -1,5 +1,6 @@
 import { IsString } from 'class-validator';
 import { Appointment } from 'src/appointments/entities/appointment.entity';
+import { RoomsSchedule } from 'src/rooms_schedules/entities/rooms_schedule.entity';
 import { Service } from 'src/services/entities/service.entity';
 import {
   Column,
@@ -30,6 +31,6 @@ export class Room {
   })
   services: Service[];
 
-  // @OneToMany(() => RoomsSchedule, (schedule) => schedule.room)
-  // schedules: RoomsSchedule[];
+  @OneToMany(() => RoomsSchedule, (schedule) => schedule.room)
+  schedules: RoomsSchedule[];
 }

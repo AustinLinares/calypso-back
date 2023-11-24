@@ -80,6 +80,7 @@ export class AppointmentsService {
     newAppointment.user = userFound;
     newAppointment.worker = workerFound;
     newAppointment.service = serviceFound;
+    newAppointment.room = roomFound;
 
     return this.appointmentRepository.save(newAppointment);
   }

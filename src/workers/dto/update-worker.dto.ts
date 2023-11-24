@@ -9,18 +9,33 @@ export class UpdateWorkerDto extends PartialType(CreateWorkerDto) {
   is_available?: boolean;
 
   services_id: never;
+  rooms_schedules_ids: never;
 
   @IsArray()
   @Validate(IsNumberArray, {
     message: 'services_to_add only allows an array of numbers',
   })
   @IsOptional()
-  services_to_add: number[];
+  services_to_add?: number[];
 
   @IsArray()
   @Validate(IsNumberArray, {
     message: 'services_to_delete only allows an array of numbers',
   })
   @IsOptional()
-  services_to_delete: number[];
+  services_to_delete?: number[];
+
+  @IsArray()
+  @Validate(IsNumberArray, {
+    message: 'rooms_schedules_to_add only allows an array of numbers',
+  })
+  @IsOptional()
+  rooms_schedules_to_add?: number[];
+
+  @IsArray()
+  @Validate(IsNumberArray, {
+    message: 'rooms_schedules only allows an array of numbers',
+  })
+  @IsOptional()
+  rooms_schedules_to_delete?: number[];
 }

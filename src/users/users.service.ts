@@ -8,6 +8,13 @@ import { Repository } from 'typeorm';
 @Injectable()
 export class UsersService {
   private readonly relations = ['appointments'];
+  private readonly publicColumns = {
+    id: true,
+    name: true,
+    phone: true,
+    email: true,
+    appointments: true,
+  };
 
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
@@ -31,12 +38,14 @@ export class UsersService {
 
   findAll(complete: boolean = true) {
     return this.userRepository.find({
+      select: this.publicColumns,
       relations: complete ? this.relations : [],
     });
   }
 
   async findOne(id: number, complete: boolean = true) {
     const userFound = await this.userRepository.findOne({
+      select: this.publicColumns,
       where: { id },
       relations: complete ? this.relations : [],
     });
@@ -85,6 +94,17 @@ export class UsersService {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
 
     return result;
+  }
+
+  async getByEmail(email: string) {
+    const userFound = await this.userRepository.findOneBy({
+      email,
+    });
+
+    if (!userFound)
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+
+    return userFound;
   }
 
   // async hasConflictingAppointment(

@@ -9,7 +9,7 @@ export class User {
 
   @Column()
   @IsString()
-  @Length(0, 20)
+  @Length(3, 20)
   name: string;
 
   @Column({
@@ -25,6 +25,16 @@ export class User {
   @IsString()
   @IsEmail()
   email: string;
+
+  @Column()
+  @IsString()
+  hash_password: string;
+
+  @Column({
+    nullable: true,
+  })
+  @IsString()
+  reset_token: string;
 
   @OneToMany(() => Appointment, (appointment) => appointment.user)
   appointments: Appointment[];

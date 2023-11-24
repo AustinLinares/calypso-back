@@ -52,7 +52,7 @@ export class ServicesService {
       rooms = await this.roomsService.getRoomsByIds(service.rooms_ids);
 
     if (service.workers_ids)
-      workers = await this.workersService.getWorkersByIds(service.workers_ids);
+      workers = await this.workersService.getByIds(service.workers_ids);
 
     const newService = this.serviceRepository.create(service);
     newService.group = group;
@@ -127,7 +127,7 @@ export class ServicesService {
     }
 
     if (service.add_workers_ids) {
-      workersToAdd = await this.workersService.getWorkersByIds(
+      workersToAdd = await this.workersService.getByIds(
         service.add_workers_ids,
       );
     }
