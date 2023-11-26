@@ -4,13 +4,18 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
+import { AuthService } from 'src/auth/auth.service';
+import { MailService } from 'src/mail/mail.service';
+import { NewTokenDto } from './dto/new-token.dto';
+import { UserAppointmentsDto } from './dto/user-appointments.dto';
 
 @Injectable()
 export class UsersService {
   private readonly relations = ['appointments'];
   private readonly publicColumns = {
     id: true,
-    name: true,
+    first_name: true,
+    last_name: true,
     phone: true,
     email: true,
     appointments: true,
@@ -18,6 +23,8 @@ export class UsersService {
 
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
+    private readonly authService: AuthService,
+    private readonly mailService: MailService,
   ) {}
 
   async create(user: CreateUserDto) {
@@ -25,13 +32,16 @@ export class UsersService {
       where: [{ email: user.email }, { phone: user.phone }],
     });
 
-    if (userFound)
-      throw new HttpException(
-        'Already exists a User with same email or phone',
-        HttpStatus.CONFLICT,
-      );
+    // if (userFound)
+    //   throw new HttpException(
+    //     'Already exists a User with same email or phone',
+    //     HttpStatus.CONFLICT,
+    //   );
+
+    if (userFound) return userFound;
 
     const newUser = this.userRepository.create(user);
+    newUser.token = this.authService.generateToken();
 
     return this.userRepository.save(newUser);
   }
@@ -83,6 +93,7 @@ export class UsersService {
     }
 
     const userUpdated = this.userRepository.merge(userFound, user);
+    delete userUpdated.token;
 
     return this.userRepository.save(userUpdated);
   }
@@ -105,6 +116,46 @@ export class UsersService {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
 
     return userFound;
+  }
+
+  async newToken(body: NewTokenDto) {
+    const { email } = body;
+
+    const userFound = await this.getByEmail(email);
+
+    userFound.token = this.authService.generateToken();
+    this.mailService.sendAllowSeeAppointmentsEmail(userFound);
+
+    await this.userRepository.save(userFound);
+
+    return {
+      message: `token was created, and an email was sended to ${email}`,
+    };
+  }
+
+  async getAppointments(body: UserAppointmentsDto) {
+    const { email, token } = body;
+
+    const userFound = await this.userRepository.findOne({
+      select: {
+        appointments: true,
+      },
+      relations: {
+        appointments: true,
+      },
+      where: {
+        email,
+        token,
+      },
+    });
+
+    if (!userFound)
+      throw new HttpException(
+        'User not found, Email or token incorrect',
+        HttpStatus.NOT_FOUND,
+      );
+
+    return userFound.appointments;
   }
 
   // async hasConflictingAppointment(

@@ -10,7 +10,12 @@ export class User {
   @Column()
   @IsString()
   @Length(3, 20)
-  name: string;
+  first_name: string;
+
+  @Column()
+  @IsString()
+  @Length(3, 20)
+  last_name: string;
 
   @Column({
     unique: true,
@@ -26,15 +31,21 @@ export class User {
   @IsEmail()
   email: string;
 
-  @Column()
-  @IsString()
-  hash_password: string;
+  // @Column()
+  // @IsString()
+  // hash_password: string;
+
+  // @Column({
+  //   nullable: true,
+  // })
+  // @IsString()
+  // reset_token: string;
 
   @Column({
     nullable: true,
   })
   @IsString()
-  reset_token: string;
+  token: string;
 
   @OneToMany(() => Appointment, (appointment) => appointment.user)
   appointments: Appointment[];

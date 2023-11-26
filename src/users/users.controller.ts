@@ -1,17 +1,19 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
   ParseIntPipe,
+  Patch,
+  Post,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
+import { Public } from 'src/auth/decorators/public.decorator';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { Public } from 'src/auth/decorators/public.decorator';
+import { NewTokenDto } from './dto/new-token.dto';
+import { UserAppointmentsDto } from './dto/user-appointments.dto';
 
 @Controller('users')
 export class UsersController {
@@ -45,5 +47,17 @@ export class UsersController {
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.remove(id);
+  }
+
+  @Public()
+  @Post('new-token')
+  newToken(@Body() body: NewTokenDto) {
+    return this.usersService.newToken(body);
+  }
+
+  @Public()
+  @Post('appointments')
+  userAppointmetns(@Body() body: UserAppointmentsDto) {
+    return this.usersService.getAppointments(body);
   }
 }

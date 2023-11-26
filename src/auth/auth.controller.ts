@@ -1,7 +1,6 @@
 import { AuthService } from './auth.service';
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { LoginDto } from './dto/login.dto';
-import { RegisterDto } from './dto/register.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
@@ -17,11 +16,11 @@ export class AuthController {
     return this.authService.login(payload);
   }
 
-  @Public()
-  @Post('register')
-  register(@Body() payload: RegisterDto) {
-    return this.authService.register(payload);
-  }
+  // @Public()
+  // @Post('register')
+  // register(@Body() payload: RegisterDto) {
+  //   return this.authService.register(payload);
+  // }
 
   @Public()
   @Post('forgot-password')

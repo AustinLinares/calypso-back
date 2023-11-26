@@ -14,7 +14,6 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
       username: this.configService.get<string>('DB_USERNAME') || 'root',
       password: this.configService.get<string>('DB_PASSWORD') || '',
       database: this.configService.get<string>('DB_NAME') || 'calypso_db',
-      // entities: [join(__dirname, '../../../**/*.entity{.js,.ts}')],
       autoLoadEntities: true,
       synchronize: true,
       timezone: this.configService.get<string>('DB_TIMEZONE') || '-03:00',

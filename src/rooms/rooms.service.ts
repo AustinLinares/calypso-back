@@ -104,9 +104,12 @@ export class RoomsService {
     return result;
   }
 
-  getRoomsByIds(ids: number[]) {
-    return this.roomRepository.findBy({
-      id: In(ids),
+  getRoomsByIds(ids: number[], complete: boolean = false) {
+    return this.roomRepository.find({
+      relations: complete ? this.relations : [],
+      where: {
+        id: In(ids),
+      },
     });
   }
 }

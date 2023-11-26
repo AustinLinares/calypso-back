@@ -1,37 +1,46 @@
 import { MailService } from './../mail/mail.service';
-import { UsersService } from './../users/users.service';
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  forwardRef,
+} from '@nestjs/common';
 import { LoginDto } from './dto/login.dto';
-import { RegisterDto } from './dto/register.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { argon2id, hash, verify } from 'argon2';
 import { JwtService } from '@nestjs/jwt';
-import { Role } from 'src/role/enums/role.enum';
 import { randomBytes } from 'crypto';
+import { WorkersService } from 'src/workers/workers.service';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly usersService: UsersService,
+    @Inject(forwardRef(() => WorkersService))
+    private readonly workersService: WorkersService,
     private readonly mailService: MailService,
     private readonly jwtService: JwtService,
   ) {}
 
   async login(payload: LoginDto) {
     const { email, password } = payload;
-    const user = await this.usersService.getByEmail(email);
+    const worker = await this.workersService.getByEmail(email);
 
-    const isVerified = await this.verifyPassword(user.hash_password, password);
+    const isVerified = await this.verifyPassword(
+      worker.hash_password,
+      password,
+    );
 
     if (!isVerified)
       throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
 
     const jwtPayload = {
-      sub: user.id,
-      username: user.name,
-      role: Role.USER,
+      sub: worker.id,
+      first_name: worker.first_name,
+      last_name: worker.first_name,
+      role: worker.role,
     };
 
     return {
@@ -39,18 +48,18 @@ export class AuthService {
     };
   }
 
-  async register(payload: RegisterDto) {
-    const hashedPassword = await this.genHash(payload.password);
+  // async register(payload: RegisterDto) {
+  //   const hashedPassword = await this.genHash(payload.password);
 
-    await this.usersService.create({
-      ...payload,
-      hash_password: hashedPassword,
-    });
+  //   await this.workersService.create({
+  //     ...payload,
+  //     hash_password: hashedPassword,
+  //   });
 
-    return {
-      message: 'The user was created',
-    };
-  }
+  //   return {
+  //     message: 'The user was created',
+  //   };
+  // }
 
   async changePassword(payload: ChangePasswordDto) {
     const { email, current_password, new_password, confirm_new_password } =
@@ -62,10 +71,10 @@ export class AuthService {
         HttpStatus.BAD_REQUEST,
       );
 
-    const user = await this.usersService.getByEmail(email);
+    const worker = await this.workersService.getByEmail(email);
 
     const isVerified = await this.verifyPassword(
-      user.hash_password,
+      worker.hash_password,
       current_password,
     );
 
@@ -75,9 +84,7 @@ export class AuthService {
         HttpStatus.BAD_REQUEST,
       );
 
-    const hash_password = await this.genHash(new_password);
-
-    await this.usersService.update(user.id, { hash_password });
+    await this.workersService.changePassword(worker.id, new_password);
 
     return {
       message: 'The password was changed',
@@ -86,11 +93,11 @@ export class AuthService {
 
   async forgotPassword(payload: ForgotPasswordDto) {
     const { email } = payload;
-    const user = await this.usersService.getByEmail(email);
+    const user = await this.workersService.getByEmail(email);
 
     const reset_token = randomBytes(32).toString('hex');
 
-    await this.usersService.update(user.id, {
+    await this.workersService.update(user.id, {
       reset_token,
     });
 
@@ -104,21 +111,16 @@ export class AuthService {
   async resetPassword(payload: ResetPasswordDto) {
     const { email, new_password, reset_token } = payload;
 
-    const user = await this.usersService.getByEmail(email);
+    const worker = await this.workersService.getByEmail(email);
 
-    if (reset_token !== user.reset_token) {
+    if (reset_token !== worker.reset_token) {
       throw new HttpException(
         'The reset token is incorrect',
         HttpStatus.BAD_REQUEST,
       );
     }
 
-    const hash_password = await this.genHash(new_password);
-
-    await this.usersService.update(user.id, {
-      hash_password,
-      reset_token: null,
-    });
+    await this.workersService.changePassword(worker.id, new_password);
 
     return {
       message: 'The password was reseted',
@@ -137,5 +139,24 @@ export class AuthService {
 
   verifyPassword(hash_password: string, password: string) {
     return verify(hash_password, password);
+  }
+
+  generateToken(): string {
+    const payload = {};
+    const expiresIn = '6h';
+
+    const token = this.jwtService.sign(payload, { expiresIn });
+
+    return token;
+  }
+
+  validateToken(token: string): boolean {
+    try {
+      this.jwtService.verify(token);
+      return true;
+    } catch (error) {
+      if (error.name === 'TokenExpiredError') return false;
+      else throw error;
+    }
   }
 }

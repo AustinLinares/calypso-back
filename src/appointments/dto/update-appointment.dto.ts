@@ -1,4 +1,4 @@
-import { SessionState } from '../interfaces/SessionState';
+import { SessionState } from '../interfaces/SessionState.interface';
 import { IsEnum, IsOptional } from 'class-validator';
 
 export class UpdateAppointmentDto {

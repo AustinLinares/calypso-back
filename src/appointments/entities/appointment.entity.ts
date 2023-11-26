@@ -1,7 +1,7 @@
 import { IsDate, IsEnum, IsInt, IsPositive, IsString } from 'class-validator';
 import { Service } from 'src/services/entities/service.entity';
 import { User } from 'src/users/entities/user.entity';
-import { Worker } from 'src/workers/entities/worker.entity';
+// import { Worker } from 'src/workers/entities/worker.entity';
 import {
   Column,
   Entity,
@@ -10,7 +10,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { SessionState } from '../interfaces/SessionState';
+import { SessionState } from '../interfaces/SessionState.interface';
 import { Room } from 'src/rooms/entities/room.entity';
 
 @Entity('appointments')
@@ -31,7 +31,8 @@ export class Appointment {
   end_time: string;
 
   @Column({
-    type: 'bit',
+    type: 'int',
+    default: 1,
   })
   @IsInt()
   @IsPositive()
@@ -48,10 +49,12 @@ export class Appointment {
   @Column({
     type: 'enum',
     enum: SessionState,
-    default: SessionState.PENDING,
+    default: SessionState.BOOKED,
   })
   @IsEnum(SessionState, {
-    message: 'State must be one of: pending, booked, completed, canceled',
+    message: `State must be one of: ${Object.values(SessionState)
+      .join(', ')
+      .toLowerCase()}`,
   })
   state: SessionState;
 
@@ -63,9 +66,9 @@ export class Appointment {
   @IsDate()
   updated_at: Date;
 
-  @ManyToOne(() => Worker, (worker) => worker.appointments)
-  @JoinColumn({ name: 'worker_id' })
-  worker: Worker;
+  // @ManyToOne(() => Worker, (worker) => worker.appointments)
+  // @JoinColumn({ name: 'worker_id' })
+  // worker: Worker;
 
   @ManyToOne(() => Service, (service) => service.appointments)
   @JoinColumn({ name: 'service_id' })
@@ -76,5 +79,6 @@ export class Appointment {
   user: User;
 
   @ManyToOne(() => Room, (room) => room.appointments)
+  @JoinColumn({ name: 'room_id' })
   room: Room;
 }

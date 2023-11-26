@@ -18,7 +18,7 @@ import { Worker } from 'src/workers/entities/worker.entity';
 
 @Injectable()
 export class RoomsSchedulesService {
-  private readonly relations = ['room ', 'workers'];
+  private readonly relations = ['room', 'workers'];
 
   constructor(
     @InjectRepository(RoomsSchedule)
@@ -174,9 +174,12 @@ export class RoomsSchedulesService {
     return result;
   }
 
-  getByIds(ids: number[]) {
-    return this.roomsScheduleRepository.findBy({
-      id: In(ids),
+  getByIds(ids: number[], complete: boolean = false) {
+    return this.roomsScheduleRepository.find({
+      where: {
+        id: In(ids),
+      },
+      relations: complete ? this.relations : [],
     });
   }
 }

@@ -8,8 +8,11 @@ export class UpdateWorkerDto extends PartialType(CreateWorkerDto) {
   @IsOptional()
   is_available?: boolean;
 
-  services_id: never;
-  rooms_schedules_ids: never;
+  services_id?: never;
+  rooms_schedules_ids?: never;
+
+  @IsOptional()
+  reset_token?: string | null;
 
   @IsArray()
   @Validate(IsNumberArray, {

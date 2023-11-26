@@ -1,5 +1,12 @@
+import { AuthService } from './../auth/auth.service';
 import { RoomsSchedulesService } from './../rooms_schedules/rooms_schedules.service';
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  forwardRef,
+} from '@nestjs/common';
 import { CreateWorkerDto } from './dto/create-worker.dto';
 import { UpdateWorkerDto } from './dto/update-worker.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -8,12 +15,14 @@ import { Worker } from './entities/worker.entity';
 import { ServicesService } from 'src/services/services.service';
 import { Service } from 'src/services/entities/service.entity';
 import { RoomsSchedule } from 'src/rooms_schedules/entities/rooms_schedule.entity';
+import { genSecurePassword } from 'src/utils/credentialsFunctions';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class WorkersService {
   private readonly relations = [
     'schedules',
-    'appointments',
+    // 'appointments',
     'services',
     'room_schedules',
   ];
@@ -23,6 +32,9 @@ export class WorkersService {
     private readonly workerRepository: Repository<Worker>,
     private readonly servicesService: ServicesService,
     private readonly roomsSchedulesService: RoomsSchedulesService,
+    @Inject(forwardRef(() => AuthService))
+    private readonly authService: AuthService,
+    private readonly mailService: MailService,
   ) {}
 
   async create(worker: CreateWorkerDto) {
@@ -46,9 +58,14 @@ export class WorkersService {
       worker.rooms_schedules_ids,
     );
 
+    const newPassword = genSecurePassword();
+
     const newWorker = this.workerRepository.create(worker);
+    newWorker.hash_password = await this.authService.genHash(newPassword);
     newWorker.services = foundServices;
     newWorker.room_schedules = foundRoomSchedules;
+
+    this.mailService.sendNewWorkerEmail(newWorker, newPassword);
 
     return this.workerRepository.save(newWorker);
   }
@@ -142,34 +159,6 @@ export class WorkersService {
     return this.workerRepository.softDelete(id);
   }
 
-  async isTimeAvailable(
-    workerId: number,
-    startTime: string,
-    endTime: string,
-  ): Promise<boolean> {
-    const worker = await this.workerRepository.findOne({
-      where: { id: workerId },
-      relations: ['schedules'],
-    });
-
-    const startDate = new Date(startTime);
-    const endDate = new Date(endTime);
-
-    if (!worker) return false;
-
-    const hasConflict = worker.schedules.some((schedule) => {
-      const scheduleStart = new Date(schedule.start_time);
-      const scheduleEnd = new Date(schedule.end_time);
-
-      return (
-        (scheduleStart <= startDate && startDate < scheduleEnd) ||
-        (scheduleStart < endDate && endDate <= scheduleEnd)
-      );
-    });
-
-    return !hasConflict;
-  }
-
   async getServices(id: number) {
     const worker = await this.findOne(id);
 
@@ -180,5 +169,26 @@ export class WorkersService {
     return this.workerRepository.findBy({
       id: In(ids),
     });
+  }
+
+  async getByEmail(email: string) {
+    const workerFound = await this.workerRepository.findOneBy({
+      email,
+    });
+
+    if (!workerFound)
+      throw new HttpException('Worker not found', HttpStatus.NOT_FOUND);
+
+    return workerFound;
+  }
+
+  async changePassword(id: number, password: string) {
+    const workerFound = await this.findOne(id, false);
+
+    const hash_password = await this.authService.genHash(password);
+    workerFound.hash_password = hash_password;
+    workerFound.reset_token = null;
+
+    return this.workerRepository.save(workerFound);
   }
 }

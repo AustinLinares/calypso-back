@@ -1,4 +1,3 @@
-import { Appointment } from 'src/appointments/entities/appointment.entity';
 import {
   Column,
   CreateDateColumn,
@@ -15,10 +14,13 @@ import {
   IsBoolean,
   IsDate,
   IsEmail,
+  IsEnum,
   IsMobilePhone,
   IsString,
+  Length,
 } from 'class-validator';
 import { RoomsSchedule } from 'src/rooms_schedules/entities/rooms_schedule.entity';
+import { Role } from 'src/role/enums/role.enum';
 
 @Entity('workers')
 export class Worker {
@@ -26,7 +28,14 @@ export class Worker {
   id: number;
 
   @Column()
-  name: string;
+  @IsString()
+  @Length(3, 20)
+  first_name: string;
+
+  @Column()
+  @IsString()
+  @Length(3, 20)
+  last_name: string;
 
   @Column()
   @IsString()
@@ -60,14 +69,33 @@ export class Worker {
   @Column({ type: 'text', nullable: true })
   presentation: string;
 
+  @Column({
+    type: 'enum',
+    enum: Role,
+    default: Role.WORKER,
+  })
+  @IsEnum(Role, {
+    message: `Role must be one of: ${Object.values(Role)
+      .join(', ')
+      .toLowerCase()}`,
+  })
+  role: Role;
+
   @Column()
-  position: string;
+  @IsString()
+  hash_password: string;
+
+  @Column({
+    nullable: true,
+  })
+  @IsString()
+  reset_token: string;
 
   @OneToMany(() => Schedule, (schedule) => schedule.worker)
   schedules: Schedule[];
 
-  @OneToMany(() => Appointment, (appointment) => appointment.worker)
-  appointments: Appointment[];
+  // @OneToMany(() => Appointment, (appointment) => appointment.worker)
+  // appointments: Appointment[];
 
   @ManyToMany(() => Service, (service) => service.workers, {
     cascade: true,

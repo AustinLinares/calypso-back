@@ -18,6 +18,7 @@ import { TypeOrmConfigService } from './custom-config/type-orm-config/type-orm-c
 import { MailerConfigService } from './custom-config/mailer-config/mailer-config.service';
 import { JwtConfigService } from './custom-config/jwt-config/jwt-config.service';
 import { RoleModule } from './role/role.module';
+import { ReservationModule } from './reservation/reservation.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { RoleModule } from './role/role.module';
     MailModule,
     CustomConfigModule,
     RoleModule,
+    ReservationModule,
     // RoomsSchedulesModule,
   ],
   controllers: [AppController],
