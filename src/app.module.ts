@@ -19,6 +19,7 @@ import { MailerConfigService } from './custom-config/mailer-config/mailer-config
 import { JwtConfigService } from './custom-config/jwt-config/jwt-config.service';
 import { RoleModule } from './role/role.module';
 import { ReservationModule } from './reservation/reservation.module';
+import { RoomsSchedulesModule } from './rooms_schedules/rooms_schedules.module';
 
 @Module({
   imports: [
@@ -43,7 +44,7 @@ import { ReservationModule } from './reservation/reservation.module';
     CustomConfigModule,
     RoleModule,
     ReservationModule,
-    // RoomsSchedulesModule,
+    RoomsSchedulesModule,
   ],
   controllers: [AppController],
   providers: [AppService, JwtConfigService],
