@@ -15,7 +15,7 @@ export class MailService {
   sendAllowSeeAppointmentsEmail(user: User) {
     this.mailerService.sendMail({
       to: user.email,
-      from: this.configService.get<string>('MAIL_USER'),
+      from: this.configService.get('MAIL_USER'),
       subject: `Solicitud de historial de citas`,
       html: `Estimado/a ${user.first_name} ${user.last_name},
       <br>
@@ -43,7 +43,7 @@ export class MailService {
   sendNewAppointmentEmail(appointment: Appointment) {
     this.mailerService.sendMail({
       to: appointment.user.email,
-      from: this.configService.get<string>('MAIL_USER'),
+      from: this.configService.get('MAIL_USER'),
       subject: `Confirmación de Reserva en CalypsoSpa`,
       html: `¡Estimado ${appointment.user.first_name} ${
         appointment.user.last_name
@@ -81,7 +81,7 @@ export class MailService {
   sendNewWorkerEmail(worker: Worker, password: string) {
     this.mailerService.sendMail({
       to: worker.email,
-      from: this.configService.get<string>('MAIL_USER'),
+      from: this.configService.get('MAIL_USER'),
       subject: `Bienvenido a CalypsoSpa`,
       html: `¡Hola ${worker.first_name} ${worker.last_name}!
       <br>
@@ -114,7 +114,7 @@ export class MailService {
   sendForgotPasswordEmail(email: string, token: string) {
     this.mailerService.sendMail({
       to: email,
-      from: this.configService.get<string>('MAIL_USER'),
+      from: this.configService.get('MAIL_USER'),
       subject: 'Forgot Password CalypsoSpa',
       html: `Esperamos que este correo electrónico te encuentre bien.
       <br>

@@ -9,14 +9,13 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
   createTypeOrmOptions(): TypeOrmModuleOptions {
     return {
       type: 'mysql',
-      host: this.configService.get<string>('DB_HOST') || 'localhost',
-      port: this.configService.get<number>('DB_PORT') || 3306,
-      username: this.configService.get<string>('DB_USERNAME') || 'root',
-      password: this.configService.get<string>('DB_PASSWORD') || '',
-      database: this.configService.get<string>('DB_NAME') || 'calypso_db',
+      host: this.configService.get('DB_HOST') || 'localhost',
+      port: parseInt(this.configService.get('DB_PORT')) || 3306,
+      username: this.configService.get('DB_USERNAME') || 'root',
+      password: this.configService.get('DB_PASSWORD') || '',
+      database: this.configService.get('DB_NAME') || 'calypso_db',
       autoLoadEntities: true,
-      synchronize: true,
-      // timezone: this.configService.get<string>('DB_TIMEZONE') || '-03:00',
+      synchronize: this.configService.get('DEVELOPMENT') === 'true',
     };
   }
 }

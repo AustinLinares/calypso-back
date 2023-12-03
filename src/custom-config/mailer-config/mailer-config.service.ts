@@ -9,11 +9,11 @@ export class MailerConfigService implements MailerOptionsFactory {
   createMailerOptions(): MailerOptions {
     return {
       transport: {
-        host: this.configService.get<string>('MAIL_HOST') || 'smtp.gmail.com',
-        port: this.configService.get<number>('MAIL_PORT') || 465,
+        host: this.configService.get('MAIL_HOST') || 'smtp.gmail.com',
+        port: parseInt(this.configService.get('MAIL_PORT')) || 465,
         auth: {
-          user: this.configService.get<string>('MAIL_USER'),
-          pass: this.configService.get<string>('MAIL_PASSWORD'),
+          user: this.configService.get('MAIL_USER'),
+          pass: this.configService.get('MAIL_PASSWORD'),
         },
         secure: true,
       },

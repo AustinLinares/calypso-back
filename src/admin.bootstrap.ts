@@ -10,7 +10,7 @@ export async function bootstrapAdmin() {
   const workersService = app.get(WorkersService);
   const configService = app.get(ConfigService);
 
-  const adminEmail = configService.get<string>('ADMIN_EMAIL');
+  const adminEmail = configService.get('ADMIN_EMAIL');
 
   try {
     await workersService.getByEmail(adminEmail);
@@ -20,7 +20,7 @@ export async function bootstrapAdmin() {
       email: adminEmail,
       first_name: 'admin',
       last_name: 'admin',
-      phone: configService.get<string>('ADMIN_PHONE'),
+      phone: configService.get('ADMIN_PHONE'),
       role: Role.ADMIN,
       speciality: '',
       presentation: 'The first admin',
