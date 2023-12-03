@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
+import { bootstrapAdmin } from './admin.bootstrap';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -10,6 +11,10 @@ async function bootstrap() {
   app.enableCors({
     origin: '*',
   });
+
+  await bootstrapAdmin();
+
   await app.listen(parseInt(process.env.APP_PORT) | 3000);
 }
+
 bootstrap();

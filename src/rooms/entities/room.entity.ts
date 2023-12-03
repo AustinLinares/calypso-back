@@ -25,7 +25,9 @@ export class Room {
   @OneToMany(() => Appointment, (appointment) => appointment.room)
   appointments: Appointment[];
 
-  @ManyToMany(() => Service, (service) => service.rooms)
+  @ManyToMany(() => Service, (service) => service.rooms, {
+    onDelete: 'CASCADE',
+  })
   @JoinTable({
     name: 'rooms_services',
   })

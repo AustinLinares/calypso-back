@@ -14,7 +14,6 @@ import { RoomsSchedule } from './entities/rooms_schedule.entity';
 import { In, Repository } from 'typeorm';
 import { TimeRange, dateFromHours } from 'src/utils/timeFunctions';
 import { areIntervalsOverlapping, isBefore } from 'date-fns';
-import { Worker } from 'src/workers/entities/worker.entity';
 
 @Injectable()
 export class RoomsSchedulesService {
@@ -94,68 +93,70 @@ export class RoomsSchedulesService {
   }
 
   async update(id: number, roomSchedule: UpdateRoomsScheduleDto) {
-    const existingRoomSchedule = await this.roomsScheduleRepository.findOne({
-      where: { id },
-      relations: this.relations,
-    });
-    let workersToAdd: Worker[] = [];
-    let filteredWorkers: Worker[] = [];
+    const existingRoomSchedule = await this.findOne(id);
 
     if (!existingRoomSchedule)
       throw new HttpException('Schedule not found', HttpStatus.NOT_FOUND);
 
     const roomFound = await this.roomsService.findOne(
       existingRoomSchedule.room.id,
+      false,
     );
 
-    const range: TimeRange = {
-      start: dateFromHours(existingRoomSchedule.start_time),
-      end: dateFromHours(existingRoomSchedule.end_time),
-    };
-
-    if (roomSchedule.start_time)
-      range.start = dateFromHours(roomSchedule.start_time);
-    if (roomSchedule.end_time) range.end = dateFromHours(roomSchedule.end_time);
-
-    if (isBefore(range.end, range.start))
-      throw new HttpException(
-        'end_time is greater than star_time',
-        HttpStatus.BAD_REQUEST,
-      );
-
-    const matchedSchedules = await this.roomsScheduleRepository.find({
-      where: {
-        room: {
-          id: roomFound.id,
-        },
-        day: roomSchedule.day,
-      },
-    });
-
-    for (const matchSchedule of matchedSchedules) {
-      if (matchSchedule.id === id) continue;
-
-      const matchedRange: TimeRange = {
-        start: dateFromHours(matchSchedule.start_time),
-        end: dateFromHours(matchSchedule.end_time),
+    if (roomSchedule.start_time || roomSchedule.end_time || roomSchedule.day) {
+      const range: TimeRange = {
+        start: roomSchedule.start_time
+          ? dateFromHours(roomSchedule.start_time)
+          : dateFromHours(existingRoomSchedule.start_time),
+        end: roomSchedule.end_time
+          ? dateFromHours(roomSchedule.end_time)
+          : dateFromHours(existingRoomSchedule.end_time),
       };
 
-      if (areIntervalsOverlapping(matchedRange, range))
+      if (isBefore(range.end, range.start)) {
+        throw new HttpException(
+          'end_time is greater than star_time',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      const matchedSchedules = await this.roomsScheduleRepository.find({
+        where: {
+          room: {
+            id: roomFound.id,
+          },
+          day: roomSchedule.day,
+        },
+      });
+
+      const hasConflict = matchedSchedules.some((matchSchedule) => {
+        if (matchSchedule.id === id) return false;
+
+        const matchedRange: TimeRange = {
+          start: dateFromHours(matchSchedule.start_time),
+          end: dateFromHours(matchSchedule.end_time),
+        };
+
+        return areIntervalsOverlapping(matchedRange, range);
+      });
+
+      if (hasConflict) {
         throw new HttpException(
           'The range of hours has conflict with other RoomSchedule in the same day',
           HttpStatus.CONFLICT,
         );
+      }
     }
 
-    if (roomSchedule.workers_to_add)
-      workersToAdd = await this.workersService.getByIds(
-        roomSchedule.workers_to_add,
-      );
+    const workersToAdd = roomSchedule.workers_to_add
+      ? await this.workersService.getByIds(roomSchedule.workers_to_add)
+      : [];
 
-    if (roomSchedule.workers_to_delete)
-      filteredWorkers = existingRoomSchedule.workers.filter(
-        (worker) => !roomSchedule.workers_to_delete.includes(worker.id),
-      );
+    const filteredWorkers = roomSchedule.workers_to_delete
+      ? existingRoomSchedule.workers.filter(
+          (worker) => !roomSchedule.workers_to_delete.includes(worker.id),
+        )
+      : existingRoomSchedule.workers;
 
     this.roomsScheduleRepository.merge(existingRoomSchedule, roomSchedule);
     existingRoomSchedule.room = roomFound;

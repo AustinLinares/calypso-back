@@ -12,30 +12,33 @@ import { RoomsSchedulesService } from './rooms_schedules.service';
 import { CreateRoomsScheduleDto } from './dto/create-rooms_schedule.dto';
 import { UpdateRoomsScheduleDto } from './dto/update-rooms_schedule.dto';
 import { Public } from 'src/auth/decorators/public.decorator';
+import { Roles } from 'src/role/decorators/role.decorator';
+import { Role } from 'src/role/enums/role.enum';
 
 @Controller('rooms-schedules')
 export class RoomsSchedulesController {
   constructor(private readonly roomsSchedulesService: RoomsSchedulesService) {}
 
-  @Public()
+  @Roles(Role.ADMIN, Role.MANAGER, Role.WORKER)
   @Post()
   create(@Body() createRoomsScheduleDto: CreateRoomsScheduleDto) {
     return this.roomsSchedulesService.create(createRoomsScheduleDto);
   }
 
-  @Public()
+  @Roles(Role.ADMIN, Role.MANAGER, Role.WORKER)
   @Get()
   findAll() {
     return this.roomsSchedulesService.findAll();
   }
 
+  // ver
   @Public()
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.roomsSchedulesService.findOne(id);
   }
 
-  @Public()
+  @Roles(Role.ADMIN, Role.MANAGER, Role.WORKER)
   @Patch(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -44,7 +47,7 @@ export class RoomsSchedulesController {
     return this.roomsSchedulesService.update(id, updateRoomsScheduleDto);
   }
 
-  @Public()
+  @Roles(Role.ADMIN, Role.MANAGER, Role.WORKER)
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.roomsSchedulesService.remove(id);

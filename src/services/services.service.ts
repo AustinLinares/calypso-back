@@ -81,17 +81,11 @@ export class ServicesService {
   }
 
   async update(id: number, service: UpdateServiceDto) {
-    const serviceFound = await this.serviceRepository.findOne({
-      where: { id },
-      relations: this.relations,
-    });
+    const serviceFound = await this.findOne(id);
     let roomsToAdd: Room[] = [];
-    let filteredRooms: Room[] = [];
+    let filteredRooms: Room[] = serviceFound.rooms;
     let workersToAdd: Worker[] = [];
-    let filteredWorkers: Worker[] = [];
-
-    if (!serviceFound)
-      throw new HttpException('Service not found', HttpStatus.NOT_FOUND);
+    let filteredWorkers: Worker[] = serviceFound.workers;
 
     if (service.name && serviceFound.name !== service.name) {
       const isDuplicatedName = await this.serviceRepository.findOneBy({

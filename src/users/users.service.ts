@@ -12,14 +12,6 @@ import { UserAppointmentsDto } from './dto/user-appointments.dto';
 @Injectable()
 export class UsersService {
   private readonly relations = ['appointments'];
-  private readonly publicColumns = {
-    id: true,
-    first_name: true,
-    last_name: true,
-    phone: true,
-    email: true,
-    appointments: true,
-  };
 
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
@@ -29,7 +21,8 @@ export class UsersService {
 
   async create(user: CreateUserDto) {
     const userFound = await this.userRepository.findOne({
-      where: [{ email: user.email }, { phone: user.phone }],
+      // where: [{ email: user.email }, { phone: user.phone }],
+      where: { email: user.email },
     });
 
     // if (userFound)
@@ -48,14 +41,12 @@ export class UsersService {
 
   findAll(complete: boolean = true) {
     return this.userRepository.find({
-      select: this.publicColumns,
       relations: complete ? this.relations : [],
     });
   }
 
   async findOne(id: number, complete: boolean = true) {
     const userFound = await this.userRepository.findOne({
-      select: this.publicColumns,
       where: { id },
       relations: complete ? this.relations : [],
     });
@@ -67,12 +58,7 @@ export class UsersService {
   }
 
   async update(id: number, user: UpdateUserDto) {
-    const userFound = await this.userRepository.findOneBy({
-      id,
-    });
-
-    if (!userFound)
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    const userFound = await this.findOne(id, false);
 
     if (user.email && user.email !== userFound.email) {
       const isDuplicateEmail = await this.userRepository.findOneBy({
@@ -83,17 +69,16 @@ export class UsersService {
         throw new HttpException('Email is already in use', HttpStatus.CONFLICT);
     }
 
-    if (user.phone && user.phone !== userFound.phone) {
-      const isDuplicatePhone = await this.userRepository.findOneBy({
-        phone: user.phone,
-      });
+    // if (user.phone && user.phone !== userFound.phone) {
+    //   const isDuplicatePhone = await this.userRepository.findOneBy({
+    //     phone: user.phone,
+    //   });
 
-      if (isDuplicatePhone)
-        throw new HttpException('Phone is already in use', HttpStatus.CONFLICT);
-    }
+    //   if (isDuplicatePhone)
+    //     throw new HttpException('Phone is already in use', HttpStatus.CONFLICT);
+    // }
 
     const userUpdated = this.userRepository.merge(userFound, user);
-    delete userUpdated.token;
 
     return this.userRepository.save(userUpdated);
   }
@@ -108,8 +93,19 @@ export class UsersService {
   }
 
   async getByEmail(email: string) {
-    const userFound = await this.userRepository.findOneBy({
-      email,
+    const userFound = await this.userRepository.findOne({
+      select: {
+        id: true,
+        first_name: true,
+        last_name: true,
+        phone: true,
+        email: true,
+        token: true,
+        appointments: true,
+      },
+      where: {
+        email,
+      },
     });
 
     if (!userFound)

@@ -1,3 +1,4 @@
+import { areIntervalsOverlapping, isBefore } from 'date-fns';
 import { MailService } from 'src/mail/mail.service';
 import { ReservationService } from './../reservation/reservation.service';
 import { RoomsService } from './../rooms/rooms.service';
@@ -16,7 +17,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Appointment } from './entities/appointment.entity';
 import { In, Repository } from 'typeorm';
 import { AppointmentByDateAndServiceDto } from './dto/appointment-by-date-and-service.dto';
-import { parseDateStringToDate } from 'src/utils/timeFunctions';
+import {
+  dateFromHoursAndData,
+  getDayMonthYearFromDate,
+  parseDateStringToDate,
+} from 'src/utils/timeFunctions';
+import { AppointmentByDateAndUserDto } from './dto/appointment-by-date-and-user.dto';
 
 @Injectable()
 export class AppointmentsService {
@@ -35,11 +41,19 @@ export class AppointmentsService {
 
   async create(appointment: CreateAppointmentDto) {
     const { email, first_name, last_name, phone } = appointment.user;
+    if (isBefore(parseDateStringToDate(appointment.date), new Date())) {
+      throw new HttpException(
+        'You cant create a appointment in the past',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const user_date = parseDateStringToDate(appointment.date);
+    const [day, month, year] = getDayMonthYearFromDate(user_date);
+
     const serviceFound = await this.servicesService.findOne(
       appointment.service_id,
     );
-
-    console.log('Se envia: ', appointment.date, appointment.start_time);
 
     const availableHours = await this.reservationService.availableCompleteHours(
       {
@@ -47,8 +61,6 @@ export class AppointmentsService {
         service_id: serviceFound.id,
       },
     );
-
-    console.log(availableHours);
 
     const freeSlot = availableHours.find(
       (hour) => hour.start === appointment.start_time,
@@ -62,12 +74,54 @@ export class AppointmentsService {
 
     const roomFound = await this.roomsService.findOne(freeSlot.room_id, false);
 
-    // const user = await this.usersService.create({
-    //   email,
-    //   first_name,
-    //   last_name,
-    //   phone,
-    // });
+    const user = await this.usersService.create({
+      email,
+      first_name,
+      last_name,
+      phone,
+    });
+
+    const splitedDate = appointment.date.split('-');
+    const formatedDate = `${splitedDate[2]}-${splitedDate[1]}-${splitedDate[0]}`;
+
+    const appointmentsFound = await this.getByDateAndUser({
+      date: formatedDate,
+      user_id: user.id,
+    });
+
+    for (const appointmentFound of appointmentsFound) {
+      if (
+        areIntervalsOverlapping(
+          {
+            start: dateFromHoursAndData(
+              appointmentFound.start_time,
+              day,
+              month,
+              year,
+            ),
+            end: dateFromHoursAndData(
+              appointmentFound.end_time,
+              day,
+              month,
+              year,
+            ),
+          },
+          {
+            start: dateFromHoursAndData(
+              appointment.start_time,
+              day,
+              month,
+              year,
+            ),
+            end: dateFromHoursAndData(freeSlot.end, day, month, year),
+          },
+        )
+      )
+        throw new HttpException(
+          'You cant have more than one appointment at the same time',
+          HttpStatus.CONFLICT,
+        );
+    }
 
     const newAppointment = this.appointmentRepository.create(appointment);
     newAppointment.date = parseDateStringToDate(appointment.date);
@@ -76,13 +130,12 @@ export class AppointmentsService {
     newAppointment.service = serviceFound;
     newAppointment.end_time = freeSlot.end;
     newAppointment.room = roomFound;
-    // newAppointment.user = user;
+    newAppointment.user = user;
 
-    // this.mailService.sendNewAppointmentEmail(newAppointment);
+    this.mailService.sendNewAppointmentEmail(newAppointment);
+    delete newAppointment.user.token;
 
-    // delete newAppointment.user.token;
-
-    // return this.appointmentRepository.save(newAppointment);
+    return this.appointmentRepository.save(newAppointment);
   }
 
   findAll(complete: boolean = true) {
@@ -150,15 +203,35 @@ export class AppointmentsService {
   async getByDateAndRooms(body: AppointmentByDateAndServiceDto) {
     const { date, rooms_ids } = body;
 
-    const transformedDate = parseDateStringToDate(date);
-
-    return this.appointmentRepository.find({
+    const appointments = await this.appointmentRepository.find({
+      relations: {
+        room: true,
+      },
       where: {
-        date: transformedDate,
         room: {
           id: In(rooms_ids),
         },
       },
     });
+
+    return appointments.filter(
+      (appointment) => (appointment.date as unknown as string) === date,
+    );
+  }
+
+  async getByDateAndUser(body: AppointmentByDateAndUserDto) {
+    const { date, user_id } = body;
+
+    const appointments = await this.appointmentRepository.find({
+      where: {
+        user: {
+          id: user_id,
+        },
+      },
+    });
+
+    return appointments.filter(
+      (appointment) => (appointment.date as unknown as string) === date,
+    );
   }
 }

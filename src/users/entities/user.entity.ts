@@ -17,9 +17,7 @@ export class User {
   @Length(3, 20)
   last_name: string;
 
-  @Column({
-    unique: true,
-  })
+  @Column()
   @IsString()
   @IsMobilePhone('es-CL')
   phone: string;
@@ -43,10 +41,13 @@ export class User {
 
   @Column({
     nullable: true,
+    select: false,
   })
   @IsString()
   token: string;
 
-  @OneToMany(() => Appointment, (appointment) => appointment.user)
+  @OneToMany(() => Appointment, (appointment) => appointment.user, {
+    onDelete: 'CASCADE',
+  })
   appointments: Appointment[];
 }

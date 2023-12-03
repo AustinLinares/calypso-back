@@ -45,12 +45,7 @@ export class GroupsService {
   }
 
   async update(id: number, group: UpdateGroupDto) {
-    const groupFound = await this.groupReposiory.findOneBy({
-      id,
-    });
-
-    if (!groupFound)
-      throw new HttpException('Group not found', HttpStatus.NOT_FOUND);
+    const groupFound = await this.findOne(id);
 
     if (group.name && groupFound.name !== group.name) {
       const isDuplicatedName = await this.groupReposiory.findOneBy({

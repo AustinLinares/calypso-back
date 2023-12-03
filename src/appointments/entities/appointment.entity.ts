@@ -74,7 +74,9 @@ export class Appointment {
   @JoinColumn({ name: 'service_id' })
   service: Service;
 
-  @ManyToOne(() => User, (user) => user.appointments)
+  @ManyToOne(() => User, (user) => user.appointments, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'user_id' })
   user: User;
 

@@ -12,30 +12,32 @@ import { WorkersService } from './workers.service';
 import { CreateWorkerDto } from './dto/create-worker.dto';
 import { UpdateWorkerDto } from './dto/update-worker.dto';
 import { Public } from 'src/auth/decorators/public.decorator';
+import { Roles } from 'src/role/decorators/role.decorator';
+import { Role } from 'src/role/enums/role.enum';
 
 @Controller('workers')
 export class WorkersController {
   constructor(private readonly workersService: WorkersService) {}
 
-  @Public()
+  @Roles(Role.ADMIN)
   @Post()
   create(@Body() worker: CreateWorkerDto) {
     return this.workersService.create(worker);
   }
 
-  @Public()
+  @Roles(Role.ADMIN, Role.MANAGER, Role.WORKER)
   @Get()
   findAll() {
     return this.workersService.findAll();
   }
 
-  @Public()
+  @Roles(Role.ADMIN, Role.MANAGER, Role.WORKER)
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.workersService.findOne(id);
   }
 
-  @Public()
+  @Roles(Role.ADMIN)
   @Patch(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -44,7 +46,7 @@ export class WorkersController {
     return this.workersService.update(id, worker);
   }
 
-  @Public()
+  @Roles(Role.ADMIN)
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.workersService.softDelete(id);

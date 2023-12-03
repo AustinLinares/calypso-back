@@ -4,7 +4,7 @@ export interface TimeRange {
 }
 
 export function getDayMonthYearFromDate(date: Date) {
-  return [date.getDate(), date.getMonth(), date.getFullYear()];
+  return [date.getDate(), date.getMonth() + 1, date.getFullYear()];
 }
 
 export function getEarliestTime(timeList: string[]): string | null {
@@ -34,14 +34,30 @@ export function dateFromHours(hours: string) {
     now.getMonth() + 1,
     now.getDate(),
   ];
-  const dateString = `${year}-${month}-${day}T${hours}-03:00`;
+  // const dateString = `${year}-${month}-${day}T${hours}-03:00`;
+  const dateString = `${year}-${month.toString().padStart(2, '0')}-${day
+    .toString()
+    .padStart(2, '0')}T${hours}-03:00`;
 
   return new Date(dateString);
 }
 
+export function dateFromHoursAndData(
+  hours: string,
+  day: number,
+  month: number,
+  year: number,
+) {
+  return new Date(
+    `${year}-${month.toString().padStart(2, '0')}-${day
+      .toString()
+      .padStart(2, '0')}T${hours}-03:00`,
+  );
+}
+
 export function parseDateStringToDate(dateString: string) {
   const [day, month, year] = dateString.split('-');
-  const dateObject = new Date(`${year}-${month}-${day}T00:00:00Z`);
+  const dateObject = new Date(Number(year), Number(month) - 1, Number(day));
   return dateObject;
 }
 
@@ -53,15 +69,6 @@ export function timeOnDifferentTimeZone(
   const localeString = date.toLocaleString(countryCode, { timeZone });
 
   return localeString.split(' ')[1];
-}
-
-export function dateFromHoursAndData(
-  hours: string,
-  day: number,
-  month: number,
-  year: number,
-) {
-  return new Date(`${year}-${month}-${day}T${hours}-03:00`);
 }
 
 // export function dateFromHours(hours: string) {

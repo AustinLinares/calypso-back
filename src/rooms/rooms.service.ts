@@ -67,27 +67,34 @@ export class RoomsService {
   }
 
   async update(id: number, room: UpdateRoomDto) {
-    const roomFound = await this.roomRepository.findOne({
-      where: {
-        id,
-      },
-      relations: this.relations,
-    });
+    const roomFound = await this.findOne(id);
     let servicesToAdd: Service[] = [];
-    let filteredServices: Service[] = [];
+    let filteredServices: Service[] = roomFound.services;
 
-    if (!roomFound)
+    if (!roomFound) {
       throw new HttpException('Room not found', HttpStatus.NOT_FOUND);
+    }
 
-    if (room.add_services_ids)
+    if (room.name && roomFound.name !== room.name) {
+      const isDuplicatedName = await this.roomRepository.findOneBy({
+        name: room.name,
+      });
+
+      if (isDuplicatedName)
+        throw new HttpException('Room already exists', HttpStatus.CONFLICT);
+    }
+
+    if (room.add_services_ids) {
       servicesToAdd = await this.servicesService.getServicesByIds(
         room.add_services_ids,
       );
+    }
 
-    if (room.remove_services_ids)
+    if (room.remove_services_ids) {
       filteredServices = roomFound.services.filter(
         (service) => !room.remove_services_ids.includes(service.id),
       );
+    }
 
     const updatedRoom = this.roomRepository.merge(roomFound, room);
     updatedRoom.services = [...filteredServices, ...servicesToAdd];

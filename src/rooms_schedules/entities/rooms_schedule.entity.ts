@@ -44,10 +44,14 @@ export class RoomsSchedule {
   })
   end_time: string;
 
-  @ManyToOne(() => Room, (room) => room.schedules)
+  @ManyToOne(() => Room, (room) => room.schedules, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'room_id' })
   room: Room;
 
-  @ManyToMany(() => Worker, (worker) => worker.room_schedules)
+  @ManyToMany(() => Worker, (worker) => worker.room_schedules, {
+    onDelete: 'CASCADE',
+  })
   workers: Worker[];
 }

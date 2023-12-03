@@ -93,8 +93,11 @@ export class ReservationService {
     const schedulesFound: RoomsSchedule[] =
       await this.roomsSchedulesService.getByIds(schedules_ids, true);
 
+    const splitedDate = date.split('-');
+    const formatedDate = `${splitedDate[2]}-${splitedDate[1]}-${splitedDate[0]}`;
+
     const appointments = await this.appointmentsService.getByDateAndRooms({
-      date,
+      date: formatedDate,
       rooms_ids,
     });
 
@@ -165,8 +168,11 @@ export class ReservationService {
     const schedulesFound: RoomsSchedule[] =
       await this.roomsSchedulesService.getByIds(schedules_ids, true);
 
+    const splitedDate = date.split('-');
+    const formatedDate = `${splitedDate[2]}-${splitedDate[1]}-${splitedDate[0]}`;
+
     const appointments = await this.appointmentsService.getByDateAndRooms({
-      date,
+      date: formatedDate,
       rooms_ids,
     });
 
@@ -203,123 +209,18 @@ export class ReservationService {
       });
     }
 
-    // const cleanedHours = new Set(
-    //   hours.map((hour) => ({
-    //     start: timeOnDifferentTimeZone(hour.start),
-    //     end: timeOnDifferentTimeZone(hour.end),
-    //     room_id: hour.room_id,
-    //   })),
-    // );
-    // const availableHours = Array.from(cleanedHours);
-    const availableHours = hours.map((hour) => ({
-      start: timeOnDifferentTimeZone(hour.start),
-      end: timeOnDifferentTimeZone(hour.end),
-      room_id: hour.room_id,
-    }));
+    const cleanedHours = new Set(
+      hours.map((hour) => ({
+        start: timeOnDifferentTimeZone(hour.start),
+        end: timeOnDifferentTimeZone(hour.end),
+        room_id: hour.room_id,
+      })),
+    );
+    const availableHours = Array.from(cleanedHours);
 
     return availableHours;
   }
 
-  // async availableHours(body: AvailableHoursDto) {
-  //   const { service_id, date } = body;
-  //   const availableHours: string[] = [];
-
-  //   const user_date: Date = parseDateStringToDate(date);
-  //   const dayOfWeek: number = getDay(user_date);
-  //   const [day, month, year] = getDayMonthYearFromDate(user_date);
-
-  //   const serviceFound: Service =
-  //     await this.servicesService.findOne(service_id);
-  //   const { minutes_per_session } = serviceFound;
-
-  //   const rooms_ids: number[] = serviceFound.rooms.map((room) => room.id);
-  //   const roomsFound: Room[] = await this.roomsService.getRoomsByIds(
-  //     rooms_ids,
-  //     true,
-  //   );
-
-  //   const appointments = await this.appointmentsService.getByDateAndRooms({
-  //     date,
-  //     rooms_ids,
-  //   });
-
-  //   const filteredSchedules = roomsFound.flatMap((room) =>
-  //     room.schedules.filter((schedule) => schedule.day === dayOfWeek),
-  //   );
-
-  //   const start_times = filteredSchedules.map(
-  //     (schedule) => schedule.start_time,
-  //   );
-  //   const end_times = filteredSchedules.map((schedule) => schedule.end_time);
-
-  //   const earliest_time = dateFromHoursAndData(
-  //     getEarliestTime(start_times),
-  //     day,
-  //     month,
-  //     year,
-  //   );
-  //   const latest_time = dateFromHoursAndData(
-  //     getLatestTime(end_times),
-  //     day,
-  //     month,
-  //     year,
-  //   );
-  //   let actual_time = addMinutes(earliest_time, -minutes_per_session);
-
-  //   while (isBefore(actual_time, latest_time)) {
-  //     let schedule_reject = true;
-  //     let appointment_reject = false;
-  //     actual_time = addMinutes(actual_time, minutes_per_session);
-
-  //     for (const schedule of filteredSchedules) {
-  //       const { start_time, end_time } = schedule;
-  //       const interval = {
-  //         start: dateFromHoursAndData(start_time, day, month, year),
-  //         end: dateFromHoursAndData(end_time, day, month, year),
-  //       };
-
-  //       if (isWithinInterval(actual_time, interval)) {
-  //         schedule_reject = false;
-  //         break;
-  //       }
-  //     }
-
-  //     if (schedule_reject) continue;
-
-  //     for (const appointment of appointments) {
-  //       const { start_time, end_time } = appointment;
-  //       const interval = {
-  //         start: dateFromHoursAndData(start_time, day, month, year),
-  //         end: dateFromHoursAndData(end_time, day, month, year),
-  //       };
-
-  //       if (isWithinInterval(actual_time, interval)) {
-  //         appointment_reject = true;
-  //         break;
-  //       }
-  //     }
-
-  //     if (appointment_reject) continue;
-
-  //     availableHours.push(timeOnDifferentTimeZone(actual_time));
-  //   }
-
-  //   return availableHours;
-  // }
-
-  // createMonth(date: Date) {
-  //   const allDays: Date[] = [];
-  //   const numberOfDays: number = getDaysInMonth(date);
-  //   const actualYear: number = date.getFullYear();
-  //   const actualMonth: number = date.getMonth();
-
-  //   for (let i = 1; i <= numberOfDays; i++) {
-  //     const day = new Date(actualYear, actualMonth, i);
-  //     allDays.push(day);
-  //   }
-
-  //   return allDays;
-  // }
   createMonth(date: Date): Date[] {
     const allDays: Date[] = [];
     const numberOfDays: number = getDaysInMonth(date);

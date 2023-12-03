@@ -16,7 +16,7 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
       database: this.configService.get<string>('DB_NAME') || 'calypso_db',
       autoLoadEntities: true,
       synchronize: true,
-      timezone: this.configService.get<string>('DB_TIMEZONE') || '-03:00',
+      // timezone: this.configService.get<string>('DB_TIMEZONE') || '-03:00',
     };
   }
 }

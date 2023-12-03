@@ -1,5 +1,5 @@
 import { AuthService } from './auth.service';
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { LoginDto } from './dto/login.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
@@ -38,10 +38,5 @@ export class AuthController {
   @Post('change-password')
   changePassword(@Body() payload: ChangePasswordDto) {
     return this.authService.changePassword(payload);
-  }
-
-  @Get('profile')
-  getProfile() {
-    return true;
   }
 }

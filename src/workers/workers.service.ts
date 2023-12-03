@@ -70,8 +70,23 @@ export class WorkersService {
     return this.workerRepository.save(newWorker);
   }
 
-  async findAll(complete: boolean = true) {
+  async findAll(complete: boolean = true, sensitive: boolean = false) {
     const result = await this.workerRepository.find({
+      select: {
+        id: true,
+        first_name: true,
+        last_name: true,
+        phone: true,
+        email: true,
+        is_available: true,
+        created_at: true,
+        deleted_at: true,
+        speciality: true,
+        presentation: true,
+        role: true,
+        hash_password: sensitive,
+        reset_token: sensitive,
+      },
       where: { deleted_at: IsNull() },
       relations: complete ? this.relations : [],
     });
@@ -79,8 +94,27 @@ export class WorkersService {
     return result;
   }
 
-  async findOne(id: number, complete: boolean = true) {
+  async findOne(
+    id: number,
+    complete: boolean = true,
+    sensitive: boolean = false,
+  ) {
     const workerFound = await this.workerRepository.findOne({
+      select: {
+        id: true,
+        first_name: true,
+        last_name: true,
+        phone: true,
+        email: true,
+        is_available: true,
+        created_at: true,
+        deleted_at: true,
+        speciality: true,
+        presentation: true,
+        role: true,
+        hash_password: sensitive,
+        reset_token: sensitive,
+      },
       where: { id, deleted_at: IsNull() },
       relations: complete ? this.relations : [],
     });
@@ -94,12 +128,9 @@ export class WorkersService {
   async update(id: number, worker: UpdateWorkerDto) {
     const workerFound = await this.findOne(id, true);
     let servicesToAdd: Service[] = [];
-    let filteredServices: Service[] = [];
+    let filteredServices: Service[] = workerFound.services;
     let roomsSchedulesToAdd: RoomsSchedule[] = [];
-    let filteredRoomsSchedules: RoomsSchedule[] = [];
-
-    if (!workerFound)
-      throw new HttpException('Worker not found', HttpStatus.NOT_FOUND);
+    let filteredRoomsSchedules: RoomsSchedule[] = workerFound.room_schedules;
 
     if (worker.phone && workerFound.phone !== worker.phone) {
       const workersWithSamePhone = await this.workerRepository.findOneBy({
@@ -124,26 +155,30 @@ export class WorkersService {
         throw new HttpException('Email is already on use', HttpStatus.CONFLICT);
     }
 
-    if (worker.services_to_add)
+    if (worker.services_to_add) {
       servicesToAdd = await this.servicesService.getServicesByIds(
         worker.services_to_add,
       );
+    }
 
-    if (worker.services_to_delete)
+    if (worker.services_to_delete) {
       filteredServices = workerFound.services.filter(
         (service) => !worker.services_to_delete.includes(service.id),
       );
+    }
 
-    if (worker.rooms_schedules_to_add)
+    if (worker.rooms_schedules_to_add) {
       roomsSchedulesToAdd = await this.roomsSchedulesService.getByIds(
-        worker.services_to_add,
+        worker.rooms_schedules_to_add,
       );
+    }
 
-    if (worker.rooms_schedules_to_delete)
+    if (worker.rooms_schedules_to_delete) {
       filteredRoomsSchedules = workerFound.room_schedules.filter(
         (roomSchedule) =>
           !worker.rooms_schedules_to_delete.includes(roomSchedule.id),
       );
+    }
 
     const updatedWorker = this.workerRepository.merge(workerFound, worker);
     updatedWorker.services = [...filteredServices, ...servicesToAdd];

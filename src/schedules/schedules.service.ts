@@ -80,10 +80,7 @@ export class SchedulesService {
   }
 
   async update(id: number, schedule: UpdateScheduleDto) {
-    const existingSchedule = await this.scheduleRepository.findOne({
-      where: { id },
-      relations: this.relations,
-    });
+    const existingSchedule = await this.findOne(id);
 
     if (!existingSchedule)
       throw new HttpException('Schedule not found', HttpStatus.NOT_FOUND);

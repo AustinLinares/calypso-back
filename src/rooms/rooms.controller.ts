@@ -12,12 +12,14 @@ import { RoomsService } from './rooms.service';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
 import { Public } from 'src/auth/decorators/public.decorator';
+import { Roles } from 'src/role/decorators/role.decorator';
+import { Role } from 'src/role/enums/role.enum';
 
 @Controller('rooms')
 export class RoomsController {
   constructor(private readonly roomsService: RoomsService) {}
 
-  @Public()
+  @Roles(Role.ADMIN, Role.MANAGER)
   @Post()
   create(@Body() createRoomDto: CreateRoomDto) {
     return this.roomsService.create(createRoomDto);
@@ -35,7 +37,7 @@ export class RoomsController {
     return this.roomsService.findOne(id);
   }
 
-  @Public()
+  @Roles(Role.ADMIN, Role.MANAGER)
   @Patch(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -44,7 +46,7 @@ export class RoomsController {
     return this.roomsService.update(id, updateRoomDto);
   }
 
-  @Public()
+  @Roles(Role.ADMIN, Role.MANAGER)
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.roomsService.remove(id);

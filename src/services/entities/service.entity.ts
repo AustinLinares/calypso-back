@@ -53,7 +53,9 @@ export class Service {
   @OneToMany(() => Appointment, (appointment) => appointment.service)
   appointments: Appointment[];
 
-  @ManyToMany(() => Worker, (worker) => worker.services)
+  @ManyToMany(() => Worker, (worker) => worker.services, {
+    onDelete: 'CASCADE',
+  })
   workers: Worker[];
 
   @ManyToMany(() => Room, (room) => room.services)

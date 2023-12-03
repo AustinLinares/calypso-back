@@ -81,12 +81,15 @@ export class Worker {
   })
   role: Role;
 
-  @Column()
+  @Column({
+    select: false,
+  })
   @IsString()
   hash_password: string;
 
   @Column({
     nullable: true,
+    select: false,
   })
   @IsString()
   reset_token: string;
@@ -97,16 +100,14 @@ export class Worker {
   // @OneToMany(() => Appointment, (appointment) => appointment.worker)
   // appointments: Appointment[];
 
-  @ManyToMany(() => Service, (service) => service.workers, {
-    cascade: true,
-  })
+  @ManyToMany(() => Service, (service) => service.workers)
   @JoinTable({
     name: 'workers_services',
   })
   services: Service[];
 
   @ManyToMany(() => RoomsSchedule, (roomSchedule) => roomSchedule.workers, {
-    cascade: true,
+    onDelete: 'CASCADE',
   })
   @JoinTable({
     name: 'workers_room_schedule',
