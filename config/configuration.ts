@@ -1,0 +1,18 @@
+export const configuration = () => ({
+  NODE_ENV: process.env.NODE_ENV,
+  APP_PORT: process.env.APP_PORT,
+  SYNCHRONIZE: process.env.SYNCHRONIZE,
+  DB_TYPE: process.env.DB_TYPE,
+  DB_USERNAME: process.env.DB_USERNAME,
+  DB_HOST: process.env.DB_HOST,
+  DB_PORT: process.env.DB_PORT,
+  DB_NAME: process.env.DB_NAME,
+  DB_PASSWORD: process.env.DB_PASSWORD,
+  MAIL_HOST: process.env.MAIL_HOST,
+  MAIL_PORT: process.env.MAIL_PORT,
+  MAIL_USER: process.env.MAIL_USER,
+  MAIL_PASSWORD: process.env.MAIL_PASSWORD,
+  JWT_SECRET: process.env.JWT_SECRET,
+  ADMIN_EMAIL: process.env.ADMIN_EMAIL,
+  ADMIN_PHONE: process.env.ADMIN_PHONE,
+});

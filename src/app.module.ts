@@ -20,11 +20,16 @@ import { JwtConfigService } from './custom-config/jwt-config/jwt-config.service'
 import { RoleModule } from './role/role.module';
 import { ReservationModule } from './reservation/reservation.module';
 import { RoomsSchedulesModule } from './rooms_schedules/rooms_schedules.module';
+import { configuration } from 'config/configuration';
+import { validationSchema } from 'config/validation';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: `${process.cwd()}/config/env/${process.env.NODE_ENV}.env`,
+      load: [configuration],
+      validationSchema,
     }),
     TypeOrmModule.forRootAsync({
       useClass: TypeOrmConfigService,
