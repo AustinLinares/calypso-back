@@ -9,8 +9,8 @@ export class MailerConfigService implements MailerOptionsFactory {
   createMailerOptions(): MailerOptions {
     return {
       transport: {
-        host: this.configService.get('MAIL_HOST') || 'smtp.gmail.com',
-        port: parseInt(this.configService.get('MAIL_PORT')) || 465,
+        host: this.configService.get('MAIL_HOST'),
+        port: parseInt(this.configService.get('MAIL_PORT')),
         auth: {
           user: this.configService.get('MAIL_USER'),
           pass: this.configService.get('MAIL_PASSWORD'),
