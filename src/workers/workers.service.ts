@@ -207,8 +207,26 @@ export class WorkersService {
   }
 
   async getByEmail(email: string) {
-    const workerFound = await this.workerRepository.findOneBy({
-      email,
+    const workerFound = await this.workerRepository.findOne({
+      select: {
+        id: true,
+        first_name: true,
+        last_name: true,
+        phone: true,
+        email: true,
+        is_available: true,
+        created_at: true,
+        deleted_at: true,
+        speciality: true,
+        presentation: true,
+        role: true,
+        hash_password: true,
+        reset_token: true,
+      },
+      where: {
+        email,
+        deleted_at: IsNull(),
+      },
     });
 
     if (!workerFound)
