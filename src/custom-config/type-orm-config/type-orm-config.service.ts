@@ -16,7 +16,6 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
       database: this.configService.get('DB_NAME') || 'calypso_db',
       autoLoadEntities: true,
       synchronize: this.configService.get('SYNCHRONIZE') === 'true',
-      logging: true,
     };
   }
 }
