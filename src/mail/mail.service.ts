@@ -124,7 +124,7 @@ export class MailService {
       <br>
 			Si realmente has olvidado tu contraseña y deseas restablecerla, por favor sigue el enlace a continuación:
       <br>
-	  	<a href="https://calypsospa.cl/reset-password?email=${email}?token=${token}">Reset Password</a>
+	  	<a href="https://calypsospa.cl/reset-password?email=${email}&token=${token}">Reset Password</a>
       <br>
       <br>
 			Atentamente, CalypsoSpa.
