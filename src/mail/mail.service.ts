@@ -13,9 +13,12 @@ export class MailService {
   ) {}
 
   sendAllowSeeAppointmentsEmail(user: User) {
+    const frontUrl = this.configService.get('FRONT_URL');
+    const mailUser = this.configService.get('MAIL_USER');
+
     this.mailerService.sendMail({
       to: user.email,
-      from: this.configService.get('MAIL_USER'),
+      from: mailUser,
       subject: `Solicitud de historial de citas`,
       html: `Estimado/a ${user.first_name} ${user.last_name},
       <br>
@@ -23,7 +26,7 @@ export class MailService {
       Esperamos que estés disfrutando de tus experiencias en CalypsoSpa. Para acceder a tu historial de citas, por favor haz clic en el siguiente enlace:
       <br>
       <br>
-      <a href="https://calypsospa.cl/appointments/history?email=${user.email}&token=${user.token}">Enlace al historial de Citas</a>
+      <a href="${frontUrl}/appointments/history?email=${user.email}&token=${user.token}">Enlace al historial de Citas</a>
       <br>
       <br>
       Este enlace estará disponible durante las próximas 1 hora. Después de este tiempo, expirará por razones de seguridad.
@@ -41,9 +44,12 @@ export class MailService {
   }
 
   sendNewAppointmentEmail(appointment: Appointment) {
+    const frontUrl = this.configService.get('FRONT_URL');
+    const mailUser = this.configService.get('MAIL_USER');
+
     this.mailerService.sendMail({
       to: appointment.user.email,
-      from: this.configService.get('MAIL_USER'),
+      from: mailUser,
       subject: `Confirmación de Reserva en CalypsoSpa`,
       html: `¡Estimado ${appointment.user.first_name} ${
         appointment.user.last_name
@@ -62,7 +68,7 @@ export class MailService {
       - Room: ${appointment.room.name}<br>
       <br>
       <br>
-      Si desea ver un historial de sus citas: <a href="https://calypsospa.cl/appointments/history?email=${
+      Si desea ver un historial de sus citas: <a href="${frontUrl}/appointments/history?email=${
         appointment.user.email
       }&token=${appointment.user.token}">Enlace al historial de Citas</a>
       <br>
@@ -79,9 +85,12 @@ export class MailService {
   }
 
   sendNewWorkerEmail(worker: Worker, password: string) {
+    const frontUrl = this.configService.get('FRONT_URL');
+    const mailUser = this.configService.get('MAIL_USER');
+
     this.mailerService.sendMail({
       to: worker.email,
-      from: this.configService.get('MAIL_USER'),
+      from: mailUser,
       subject: `Bienvenido a CalypsoSpa`,
       html: `¡Hola ${worker.first_name} ${worker.last_name}!
       <br>
@@ -97,7 +106,7 @@ export class MailService {
       Por razones de seguridad, te recomendamos cambiar tu contraseña después de iniciar sesión por primera vez.
       <br>
       <br>
-      Ingresa a tu cuenta en <a href="https://calypsospa.cl/login">Inciar Sesión</a>.
+      Ingresa a tu cuenta en <a href="${frontUrl}/login">Inciar Sesión</a>.
       <br>
       <br>
       Gracias por elegir CalypsoSpa. ¡Esperamos que disfrutes de una experiencia única y relajante!
@@ -112,9 +121,12 @@ export class MailService {
   }
 
   sendForgotPasswordEmail(email: string, token: string) {
+    const frontUrl = this.configService.get('FRONT_URL');
+    const mailUser = this.configService.get('MAIL_USER');
+
     this.mailerService.sendMail({
       to: email,
-      from: this.configService.get('MAIL_USER'),
+      from: mailUser,
       subject: 'Forgot Password CalypsoSpa',
       html: `Esperamos que este correo electrónico te encuentre bien.
       <br>
@@ -124,7 +136,7 @@ export class MailService {
       <br>
 			Si realmente has olvidado tu contraseña y deseas restablecerla, por favor sigue el enlace a continuación:
       <br>
-	  	<a href="https://calypsospa.cl/reset-password?email=${email}&token=${token}">Reset Password</a>
+	  	<a href="${frontUrl}/reset-password?email=${email}&token=${token}">Reset Password</a>
       <br>
       <br>
 			Atentamente, CalypsoSpa.
