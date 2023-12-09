@@ -96,8 +96,7 @@ export class UsersService {
     const userFound = await this.userRepository.findOne({
       select: {
         id: true,
-        first_name: true,
-        last_name: true,
+        name: true,
         phone: true,
         email: true,
         token: true,

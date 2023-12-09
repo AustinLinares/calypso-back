@@ -40,7 +40,7 @@ export class AppointmentsService {
   ) {}
 
   async create(appointment: CreateAppointmentDto) {
-    const { email, first_name, last_name, phone } = appointment.user;
+    const { email, name, phone } = appointment.user;
     if (isBefore(parseDateStringToDate(appointment.date), new Date())) {
       throw new HttpException(
         'You cant create a appointment in the past',
@@ -76,8 +76,7 @@ export class AppointmentsService {
 
     const user = await this.usersService.create({
       email,
-      first_name,
-      last_name,
+      name,
       phone,
     });
 
@@ -143,8 +142,7 @@ export class AppointmentsService {
       select: {
         user: {
           id: true,
-          first_name: true,
-          last_name: true,
+          name: true,
           email: true,
           phone: true,
           token: false,
@@ -159,8 +157,7 @@ export class AppointmentsService {
       select: {
         user: {
           id: true,
-          first_name: true,
-          last_name: true,
+          name: true,
           email: true,
           phone: true,
         },

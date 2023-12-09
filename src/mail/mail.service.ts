@@ -20,7 +20,7 @@ export class MailService {
       to: user.email,
       from: mailUser,
       subject: `Solicitud de historial de citas`,
-      html: `Estimado/a ${user.first_name} ${user.last_name},
+      html: `Estimado/a ${user.name},
       <br>
       <br>
       Esperamos que estés disfrutando de tus experiencias en CalypsoSpa. Para acceder a tu historial de citas, por favor haz clic en el siguiente enlace:
@@ -51,9 +51,7 @@ export class MailService {
       to: appointment.user.email,
       from: mailUser,
       subject: `Confirmación de Reserva en CalypsoSpa`,
-      html: `¡Estimado ${appointment.user.first_name} ${
-        appointment.user.last_name
-      }!
+      html: `¡Estimado ${appointment.user.name}!
       <br>
       <br>
       Gracias por elegir CalypsoSpa para tu próxima cita de bienestar. Estamos emocionados de recibirte y proporcionarte una experiencia relajante y rejuvenecedora.

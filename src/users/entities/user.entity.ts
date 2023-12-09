@@ -9,13 +9,8 @@ export class User {
 
   @Column()
   @IsString()
-  @Length(3, 20)
-  first_name: string;
-
-  @Column()
-  @IsString()
-  @Length(3, 20)
-  last_name: string;
+  @Length(3, 50)
+  name: string;
 
   @Column()
   @IsString()
