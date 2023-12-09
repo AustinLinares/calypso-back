@@ -32,6 +32,12 @@ export class ServicesController {
   }
 
   @Public()
+  @Get('no-groups')
+  getServicesWithoutGroups() {
+    return this.servicesService.getServicesWithoutGroups();
+  }
+
+  @Public()
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.servicesService.findOne(id);

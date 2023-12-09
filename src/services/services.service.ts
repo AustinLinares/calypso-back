@@ -9,7 +9,7 @@ import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Service } from './entities/service.entity';
-import { In, Repository } from 'typeorm';
+import { In, Repository, IsNull } from 'typeorm';
 import { GroupsService } from 'src/groups/groups.service';
 import { Group } from 'src/groups/entities/group.entity';
 import { WorkersService } from 'src/workers/workers.service';
@@ -156,5 +156,13 @@ export class ServicesService {
 
   getServicesByIds(ids: number[]) {
     return this.serviceRepository.findBy({ id: In(ids) });
+  }
+
+  async getServicesWithoutGroups() {
+    const result = await this.serviceRepository.findBy({
+      group: IsNull(),
+    });
+
+    return result;
   }
 }
