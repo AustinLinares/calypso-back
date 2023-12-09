@@ -155,7 +155,7 @@ export class AppointmentsService {
   }
 
   async findOne(id: number, complete: boolean = true) {
-    const appointmentFound = this.appointmentRepository.findOne({
+    const appointmentFound = await this.appointmentRepository.findOne({
       select: {
         user: {
           id: true,
