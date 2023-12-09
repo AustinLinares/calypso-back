@@ -19,7 +19,7 @@ import { Roles } from 'src/role/decorators/role.decorator';
 export class ServicesController {
   constructor(private readonly servicesService: ServicesService) {}
 
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.MANAGER, Role.WORKER)
   @Post()
   create(@Body() service: CreateServiceDto) {
     return this.servicesService.create(service);
@@ -43,7 +43,7 @@ export class ServicesController {
     return this.servicesService.findOne(id);
   }
 
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.MANAGER, Role.WORKER)
   @Patch(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -52,7 +52,7 @@ export class ServicesController {
     return this.servicesService.update(id, service);
   }
 
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.MANAGER, Role.WORKER)
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.servicesService.remove(id);

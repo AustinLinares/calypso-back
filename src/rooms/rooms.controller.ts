@@ -19,7 +19,7 @@ import { Role } from 'src/role/enums/role.enum';
 export class RoomsController {
   constructor(private readonly roomsService: RoomsService) {}
 
-  @Roles(Role.ADMIN, Role.MANAGER)
+  @Roles(Role.ADMIN, Role.MANAGER, Role.WORKER)
   @Post()
   create(@Body() createRoomDto: CreateRoomDto) {
     return this.roomsService.create(createRoomDto);
@@ -37,7 +37,7 @@ export class RoomsController {
     return this.roomsService.findOne(id);
   }
 
-  @Roles(Role.ADMIN, Role.MANAGER)
+  @Roles(Role.ADMIN, Role.MANAGER, Role.WORKER)
   @Patch(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -46,7 +46,7 @@ export class RoomsController {
     return this.roomsService.update(id, updateRoomDto);
   }
 
-  @Roles(Role.ADMIN, Role.MANAGER)
+  @Roles(Role.ADMIN, Role.MANAGER, Role.WORKER)
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.roomsService.remove(id);

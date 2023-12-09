@@ -3,7 +3,6 @@ import {
   Get,
   Post,
   Body,
-  // Patch,
   Param,
   ParseIntPipe,
   Delete,
@@ -11,7 +10,6 @@ import {
 } from '@nestjs/common';
 import { AppointmentsService } from './appointments.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
-// import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 import { Public } from 'src/auth/decorators/public.decorator';
 import { Roles } from 'src/role/decorators/role.decorator';
 import { Role } from 'src/role/enums/role.enum';
@@ -39,7 +37,7 @@ export class AppointmentsController {
     return this.appointmentsService.findOne(id);
   }
 
-  @Public()
+  @Roles(Role.ADMIN, Role.MANAGER, Role.WORKER)
   @Patch(':id')
   changeState(
     @Param('id', ParseIntPipe) id: number,
@@ -48,7 +46,7 @@ export class AppointmentsController {
     return this.appointmentsService.updateState(id, appointment);
   }
 
-  @Public()
+  @Roles(Role.ADMIN, Role.MANAGER, Role.WORKER)
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.appointmentsService.remove(id);

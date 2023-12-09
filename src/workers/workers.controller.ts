@@ -19,7 +19,7 @@ import { Role } from 'src/role/enums/role.enum';
 export class WorkersController {
   constructor(private readonly workersService: WorkersService) {}
 
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.MANAGER)
   @Post()
   create(@Body() worker: CreateWorkerDto) {
     return this.workersService.create(worker);
@@ -37,7 +37,7 @@ export class WorkersController {
     return this.workersService.findOne(id);
   }
 
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.MANAGER)
   @Patch(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -46,7 +46,7 @@ export class WorkersController {
     return this.workersService.update(id, worker);
   }
 
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.MANAGER)
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.workersService.softDelete(id);

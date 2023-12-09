@@ -31,7 +31,6 @@ export class RoomsSchedulesController {
     return this.roomsSchedulesService.findAll();
   }
 
-  // ver
   @Public()
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
