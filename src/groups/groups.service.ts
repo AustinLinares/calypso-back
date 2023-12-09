@@ -1,9 +1,17 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { ServicesService } from 'src/services/services.service';
+import {
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  forwardRef,
+} from '@nestjs/common';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Group } from './entities/group.entity';
 import { Repository } from 'typeorm';
+import { Service } from 'src/services/entities/service.entity';
 
 @Injectable()
 export class GroupsService {
@@ -11,6 +19,8 @@ export class GroupsService {
 
   constructor(
     @InjectRepository(Group) private readonly groupReposiory: Repository<Group>,
+    @Inject(forwardRef(() => ServicesService))
+    private readonly servicesService: ServicesService,
   ) {}
 
   async create(group: CreateGroupDto) {
@@ -21,7 +31,12 @@ export class GroupsService {
     if (groupFound)
       throw new HttpException('Group already Exists', HttpStatus.CONFLICT);
 
+    const services = await this.servicesService.getServicesByIds(
+      group.services_ids,
+    );
+
     const newGroup = this.groupReposiory.create(group);
+    newGroup.services = services;
 
     return this.groupReposiory.save(newGroup);
   }
@@ -46,6 +61,8 @@ export class GroupsService {
 
   async update(id: number, group: UpdateGroupDto) {
     const groupFound = await this.findOne(id);
+    let servicesToAdd: Service[] = [];
+    let filteredServices: Service[] = groupFound.services;
 
     if (group.name && groupFound.name !== group.name) {
       const isDuplicatedName = await this.groupReposiory.findOneBy({
@@ -56,7 +73,20 @@ export class GroupsService {
         throw new HttpException('Group already exists', HttpStatus.CONFLICT);
     }
 
+    if (group.add_services_ids) {
+      servicesToAdd = await this.servicesService.getServicesByIds(
+        group.add_services_ids,
+      );
+    }
+
+    if (group.remove_services_ids) {
+      filteredServices = groupFound.services.filter(
+        (service) => !group.remove_services_ids.includes(service.id),
+      );
+    }
+
     const groupUpdated = this.groupReposiory.merge(groupFound, group);
+    groupUpdated.services = [...filteredServices, ...servicesToAdd];
 
     return this.groupReposiory.save(groupUpdated);
   }
