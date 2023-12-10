@@ -57,4 +57,10 @@ export class WorkersController {
   getServices(@Param('id', ParseIntPipe) id: number) {
     return this.workersService.getServices(id);
   }
+
+  @Public()
+  @Get(':id/schedules')
+  getSchedules(@Param('id', ParseIntPipe) id: number) {
+    return this.workersService.getSchedules(id);
+  }
 }

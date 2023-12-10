@@ -183,4 +183,28 @@ export class RoomsSchedulesService {
       relations: complete ? this.relations : [],
     });
   }
+
+  getByWorkerId(id: number) {
+    return this.roomsScheduleRepository.find({
+      select: {
+        id: true,
+        day: true,
+        start_time: true,
+        end_time: true,
+        room: {
+          id: true,
+          name: true,
+        },
+      },
+      relations: {
+        workers: true,
+        room: true,
+      },
+      where: {
+        workers: {
+          id,
+        },
+      },
+    });
+  }
 }

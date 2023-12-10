@@ -20,12 +20,7 @@ import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class WorkersService {
-  private readonly relations = [
-    'schedules',
-    // 'appointments',
-    'services',
-    'room_schedules',
-  ];
+  private readonly relations = ['schedules', 'services', 'room_schedules'];
 
   constructor(
     @InjectRepository(Worker)
@@ -198,6 +193,12 @@ export class WorkersService {
     const worker = await this.findOne(id);
 
     return worker.services;
+  }
+
+  async getSchedules(id: number) {
+    const schedules = await this.roomsSchedulesService.getByWorkerId(id);
+
+    return schedules;
   }
 
   getByIds(ids: number[]) {
