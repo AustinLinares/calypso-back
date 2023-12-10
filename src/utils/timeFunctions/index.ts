@@ -1,16 +1,20 @@
+import { add, format, getDate, getMonth, getYear, parse, set } from 'date-fns';
+
 export interface TimeRange {
   start: Date;
   end: Date;
 }
 
 export function getDayMonthYearFromDate(date: Date) {
-  return [date.getDate(), date.getMonth() + 1, date.getFullYear()];
+  const day = getDate(date);
+  const month = getMonth(date) + 1;
+  const year = getYear(date);
+
+  return [day, month, year];
 }
 
 export function getEarliestTime(timeList: string[]): string | null {
-  if (timeList.length === 0) {
-    return null;
-  }
+  if (timeList.length === 0) return null;
 
   timeList.sort();
 
@@ -18,94 +22,64 @@ export function getEarliestTime(timeList: string[]): string | null {
 }
 
 export function getLatestTime(timeList: string[]): string | null {
-  if (timeList.length === 0) {
-    return null;
-  }
+  if (timeList.length === 0) return null;
 
   timeList.sort();
 
   return timeList.at(-1);
 }
 
-export function dateFromHours(hours: string) {
+export function dateFromHours(hoursString: string) {
   const now = new Date();
-  const [year, month, day] = [
-    now.getFullYear(),
-    now.getMonth() + 1,
-    now.getDate(),
-  ];
-  // const dateString = `${year}-${month}-${day}T${hours}-03:00`;
-  const dateString = `${year}-${month.toString().padStart(2, '0')}-${day
-    .toString()
-    .padStart(2, '0')}T${hours}-03:00`;
+  const [hours, minutes, seconds] = hoursString.split(':').map(Number);
 
-  return new Date(dateString);
+  let resultDate = set(now, {
+    hours,
+    minutes,
+    seconds: seconds || 0,
+  });
+
+  if (resultDate < now) resultDate = add(resultDate, { days: 1 });
+
+  return resultDate;
 }
 
 export function dateFromHoursAndData(
-  hours: string,
+  hoursString: string,
   day: number,
   month: number,
   year: number,
 ) {
-  return new Date(
-    `${year}-${month.toString().padStart(2, '0')}-${day
-      .toString()
-      .padStart(2, '0')}T${hours}-03:00`,
-  );
+  const [hours, minutes, seconds] = hoursString.split(':').map(Number);
+
+  const resultDate = set(new Date(), {
+    year,
+    month: month - 1,
+    date: day,
+    hours,
+    minutes,
+    seconds: seconds || 0,
+    milliseconds: 0,
+  });
+
+  return resultDate;
 }
 
 export function parseDateStringToDate(dateString: string) {
-  const [day, month, year] = dateString.split('-');
-  const dateObject = new Date(Number(year), Number(month) - 1, Number(day));
-  return dateObject;
+  const parsedDate = parse(dateString, 'dd-MM-yyyy', new Date());
+
+  const chileMidnight = set(parsedDate, {
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+    milliseconds: 0,
+  });
+
+  return chileMidnight;
 }
 
-export function timeOnDifferentTimeZone(
-  date: Date,
-  countryCode: string = 'es-CL',
-  timeZone: string = 'America/Santiago',
-) {
-  const localeString = date.toLocaleString(countryCode, { timeZone });
+export function timeOnDifferentTimeZone(date: Date) {
+  const formattedTime = format(date, 'HH:mm');
 
-  return localeString.split(' ')[1];
+  return formattedTime;
 }
-
-// export function dateFromHours(hours: string) {
-//   const now = new Date();
-//   const dateString = `${now.getFullYear()}-${
-//     now.getMonth() + 1
-//   }-${now.getDate()}T${hours}`;
-
-//   return utcToZonedTime(new Date(dateString), 'America/Santiago');
-// }
-
-// export function parseDateStringToDate(dateString: string) {
-//   const [day, month, year] = dateString.split('-');
-//   const dateObject = new Date(`${year}-${month}-${day}T00:00:00`);
-
-//   // Convierte la fecha y hora a la zona horaria de Santiago
-//   return utcToZonedTime(dateObject, 'America/Santiago');
-// }
-
-// export function timeOnDifferentTimeZone(
-//   date: Date,
-//   timeZone: string = 'America/Santiago',
-// ) {
-//   const localeString = format(date, 'HH:mm:ss', {
-//     timeZone,
-//   });
-//   return localeString;
-// }
-
-// export function dateFromHoursAndData(
-//   hours: string,
-//   day: number,
-//   month: number,
-//   year: number,
-// ) {
-//   const dateString = `${year}-${month}-${day}T${hours}`;
-
-//   // Convierte la fecha y hora a la zona horaria de Santiago
-//   return utcToZonedTime(new Date(dateString), 'America/Santiago');
-// }
