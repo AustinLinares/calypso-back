@@ -5,6 +5,7 @@ export const validationSchema = Joi.object({
   APP_PORT: Joi.string().default(3000),
   SYNCHRONIZE: Joi.boolean().default(true),
   FRONT_URL: Joi.string().default('http://localhost:5173'),
+  TZ: Joi.string().default('America/Santiago'),
   DB_TYPE: Joi.string().default('mysql'),
   DB_USERNAME: Joi.string().default('root'),
   DB_HOST: Joi.string().default('localhost'),
