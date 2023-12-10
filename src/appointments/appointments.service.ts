@@ -48,6 +48,8 @@ export class AppointmentsService {
       );
     }
 
+    const shortStartTime = appointment.start_time.slice(0, -3);
+
     const user_date = parseDateStringToDate(appointment.date);
     const [day, month, year] = getDayMonthYearFromDate(user_date);
 
@@ -63,7 +65,7 @@ export class AppointmentsService {
     );
 
     const freeSlot = availableHours.find(
-      (hour) => hour.start === appointment.start_time,
+      (hour) => hour.start === shortStartTime,
     );
 
     if (!freeSlot)
@@ -112,7 +114,7 @@ export class AppointmentsService {
               month,
               year,
             ),
-            end: dateFromHoursAndData(freeSlot.end, day, month, year),
+            end: dateFromHoursAndData(`${freeSlot.end}:00`, day, month, year),
           },
         )
       )
@@ -127,7 +129,7 @@ export class AppointmentsService {
     newAppointment.cost =
       serviceFound.cost_per_session * (appointment.sessions || 1);
     newAppointment.service = serviceFound;
-    newAppointment.end_time = freeSlot.end;
+    newAppointment.end_time = `${freeSlot.end}:00`;
     newAppointment.room = roomFound;
     newAppointment.user = user;
 
