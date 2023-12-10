@@ -32,7 +32,9 @@ export class MailService {
       Este enlace estará disponible durante las próximas 1 hora. Después de este tiempo, expirará por razones de seguridad.
       <br>
       <br>
-      En tu historial de citas podrás encontrar detalles sobre tus reservas anteriores, incluyendo fechas, horas y servicios reservados. Si tienes alguna pregunta o necesitas asistencia, no dudes en ponerte en contacto con nuestro equipo de atención al cliente.
+      En tu historial de citas podrás encontrar detalles sobre tus reservas anteriores, incluyendo fechas, horas y servicios reservados.
+      <br>
+      Para cualquier consulta contactarse con el siguiente numero <a href="https://wa.me/56991975494">+56 991975494</a>
       <br>
       <br>
       Agradecemos tu preferencia y esperamos seguir brindándote experiencias relajantes en CalypsoSpa.
@@ -71,7 +73,9 @@ export class MailService {
       }&token=${appointment.user.token}">Enlace al historial de Citas</a>
       <br>
       <br>
-      Estamos comprometidos a proporcionarte el mejor servicio posible. Si necesitas realizar cambios en tu reserva o tienes alguna pregunta, no dudes en ponerte en contacto con nuestro equipo de atención al cliente.
+      Estamos comprometidos a proporcionarte el mejor servicio posible.
+      <br>
+      Para cualquier consulta contactarse con el siguiente numero <a href="https://wa.me/56991975494">+56 991975494</a>
       <br>
       <br>
       Esperamos verte pronto en CalypsoSpa y que disfrutes de un tiempo de relajación total.
@@ -110,7 +114,7 @@ export class MailService {
       Gracias por elegir CalypsoSpa. ¡Esperamos que disfrutes de una experiencia única y relajante!
       <br>
       <br>
-      Si tienes alguna pregunta o necesitas ayuda, no dudes en ponerte en contacto con nuestro equipo de soporte.
+      Para cualquier consulta contactarse con el siguiente numero <a href="https://wa.me/56991975494">+56 991975494</a>
       <br>
       <br>
       Saludos,
@@ -139,7 +143,7 @@ export class MailService {
       <br>
 			Atentamente, CalypsoSpa.
       <br>
-			<a href="https://wa.me/56991975494">+56991975494</a>`,
+			<a href="https://wa.me/56991975494">+56 991975494</a>`,
     });
   }
 }
