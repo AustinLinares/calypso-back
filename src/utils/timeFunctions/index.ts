@@ -1,4 +1,4 @@
-import { add, format, getDate, getMonth, getYear, parse, set } from 'date-fns';
+import { format, getDate, getMonth, getYear, parse, set } from 'date-fns';
 
 export interface TimeRange {
   start: Date;
@@ -33,13 +33,11 @@ export function dateFromHours(hoursString: string) {
   const now = new Date();
   const [hours, minutes, seconds] = hoursString.split(':').map(Number);
 
-  let resultDate = set(now, {
+  const resultDate = set(now, {
     hours,
     minutes,
     seconds: seconds || 0,
   });
-
-  if (resultDate < now) resultDate = add(resultDate, { days: 1 });
 
   return resultDate;
 }
