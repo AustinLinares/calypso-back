@@ -22,6 +22,7 @@ export class RoomsSchedulesService {
   constructor(
     @InjectRepository(RoomsSchedule)
     private readonly roomsScheduleRepository: Repository<RoomsSchedule>,
+    @Inject(forwardRef(() => RoomsService))
     private readonly roomsService: RoomsService,
     @Inject(forwardRef(() => WorkersService))
     private readonly workersService: WorkersService,

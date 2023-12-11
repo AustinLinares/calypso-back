@@ -9,7 +9,7 @@ import { RoomsModule } from 'src/rooms/rooms.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([RoomsSchedule]),
-    RoomsModule,
+    forwardRef(() => RoomsModule),
     forwardRef(() => WorkersModule),
   ],
   controllers: [RoomsSchedulesController],

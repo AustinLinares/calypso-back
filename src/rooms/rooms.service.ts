@@ -1,3 +1,4 @@
+import { RoomsSchedulesService } from 'src/rooms_schedules/rooms_schedules.service';
 import {
   HttpException,
   HttpStatus,
@@ -12,6 +13,7 @@ import { In, Repository } from 'typeorm';
 import { Room } from './entities/room.entity';
 import { ServicesService } from 'src/services/services.service';
 import { Service } from 'src/services/entities/service.entity';
+import { PutScheduleRoomDto } from './dto/put-schedule-room.dto';
 
 @Injectable()
 export class RoomsService {
@@ -21,6 +23,8 @@ export class RoomsService {
     @InjectRepository(Room) private readonly roomRepository: Repository<Room>,
     @Inject(forwardRef(() => ServicesService))
     private readonly servicesService: ServicesService,
+    @Inject(forwardRef(() => RoomsSchedulesService))
+    private readonly roomsSchedulesService: RoomsSchedulesService,
   ) {}
 
   async create(room: CreateRoomDto) {
@@ -118,5 +122,40 @@ export class RoomsService {
         id: In(ids),
       },
     });
+  }
+
+  async put(id: number, body: PutScheduleRoomDto) {
+    const { schedules } = body;
+    const room = await this.findOne(id);
+
+    try {
+      if (room.schedules) {
+        for (const schedule of room.schedules) {
+          await this.roomsSchedulesService.remove(schedule.id);
+        }
+      }
+    } catch {
+      throw new HttpException(
+        'No se pudo completar la eliminación',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    try {
+      for (const schedule of schedules) {
+        this.roomsSchedulesService.create({
+          ...schedule,
+          room_id: id,
+          workers_ids: [],
+        });
+      }
+    } catch {
+      throw new HttpException(
+        'No se pudo completar la creación',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    return { message: 'Actualización de los schedules fue exitosa' };
   }
 }
