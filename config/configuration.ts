@@ -4,6 +4,7 @@ export const configuration = () => ({
   SYNCHRONIZE: process.env.SYNCHRONIZE,
   TZ: process.env.TZ,
   FRONT_URL: process.env.FRONT_URL,
+  BACKOFFICE_URL: process.env.BACKOFFICE_URL,
   DB_TYPE: process.env.DB_TYPE,
   DB_USERNAME: process.env.DB_USERNAME,
   DB_HOST: process.env.DB_HOST,

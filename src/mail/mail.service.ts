@@ -87,7 +87,7 @@ export class MailService {
   }
 
   sendNewWorkerEmail(worker: Worker, password: string) {
-    const frontUrl = this.configService.get('FRONT_URL');
+    const backofficeURL = this.configService.get('BACKOFFICE_URL');
     const mailUser = this.configService.get('MAIL_USER');
 
     this.mailerService.sendMail({
@@ -108,7 +108,7 @@ export class MailService {
       Por razones de seguridad, te recomendamos cambiar tu contraseña después de iniciar sesión por primera vez.
       <br>
       <br>
-      Ingresa a tu cuenta en <a href="${frontUrl}/login">Inciar Sesión</a>.
+      Ingresa a tu cuenta en <a href="${backofficeURL}/login">Inciar Sesión</a>.
       <br>
       <br>
       Gracias por elegir CalypsoSpa. ¡Esperamos que disfrutes de una experiencia única y relajante!
@@ -123,7 +123,7 @@ export class MailService {
   }
 
   sendForgotPasswordEmail(email: string, token: string) {
-    const frontUrl = this.configService.get('FRONT_URL');
+    const backofficeURL = this.configService.get('BACKOFFICE_URL');
     const mailUser = this.configService.get('MAIL_USER');
 
     this.mailerService.sendMail({
@@ -138,7 +138,7 @@ export class MailService {
       <br>
 			Si realmente has olvidado tu contraseña y deseas restablecerla, por favor sigue el enlace a continuación:
       <br>
-	  	<a href="${frontUrl}/reset-password?email=${email}&token=${token}">Reset Password</a>
+	  	<a href="${backofficeURL}/reset-password?email=${email}&token=${token}">Reset Password</a>
       <br>
       <br>
 			Atentamente, CalypsoSpa.
