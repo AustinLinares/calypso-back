@@ -143,7 +143,7 @@ export class RoomsService {
 
     try {
       for (const schedule of schedules) {
-        this.roomsSchedulesService.create({
+        await this.roomsSchedulesService.create({
           ...schedule,
           room_id: id,
           workers_ids: [],
