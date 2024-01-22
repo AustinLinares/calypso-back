@@ -1,5 +1,5 @@
-import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
+import { createTransport } from 'nodemailer';
 import { ConfigService } from '@nestjs/config';
 import { Appointment } from 'src/appointments/entities/appointment.entity';
 import { User } from 'src/users/entities/user.entity';
@@ -7,16 +7,36 @@ import { Worker } from 'src/workers/entities/worker.entity';
 
 @Injectable()
 export class MailService {
-  constructor(
-    private readonly mailerService: MailerService,
-    private readonly configService: ConfigService,
-  ) {}
+  constructor(private readonly configService: ConfigService) {}
+
+  get transporter() {
+    const transporter = createTransport({
+      host: 'mail.calypsospa.cl',
+      port: 465,
+      auth: {
+        user: 'noreply-calypsospa@calypsospa.cl',
+        pass: '$JXsld+.TS(d',
+      },
+      secure: true,
+    });
+    // const transporter = createTransport({
+    //   host: this.configService.get('MAIL_HOST'),
+    //   port: parseInt(this.configService.get('MAIL_PORT')),
+    //   auth: {
+    //     user: this.configService.get('MAIL_USER'),
+    //     pass: this.configService.get('MAIL_PASSWORD'),
+    //   },
+    //   secure: true,
+    // });
+
+    return transporter;
+  }
 
   async sendAllowSeeAppointmentsEmail(user: User) {
     const frontUrl: string = this.configService.get('FRONT_URL');
     const mailUser: string = this.configService.get('MAIL_USER');
 
-    await this.mailerService.sendMail({
+    await this.transporter.sendMail({
       to: user.email,
       from: mailUser,
       subject: `Solicitud de historial de citas`,
@@ -49,7 +69,7 @@ export class MailService {
     const frontUrl: string = this.configService.get('FRONT_URL');
     const mailUser: string = this.configService.get('MAIL_USER');
 
-    await this.mailerService.sendMail({
+    await this.transporter.sendMail({
       to: appointment.user.email,
       from: mailUser,
       subject: `Confirmación de Reserva en CalypsoSpa`,
@@ -90,7 +110,7 @@ export class MailService {
     const backofficeURL = this.configService.get('BACKOFFICE_URL');
     const mailUser = this.configService.get('MAIL_USER');
 
-    await this.mailerService.sendMail({
+    await this.transporter.sendMail({
       to: worker.email,
       from: mailUser,
       subject: `Bienvenido a CalypsoSpa`,
@@ -126,7 +146,7 @@ export class MailService {
     const backofficeURL = this.configService.get('BACKOFFICE_URL');
     const mailUser = this.configService.get('MAIL_USER');
 
-    await this.mailerService.sendMail({
+    await this.transporter.sendMail({
       to: email,
       from: mailUser,
       subject: 'Forgot Password CalypsoSpa',
@@ -136,14 +156,14 @@ export class MailService {
       Hemos recibido una solicitud para restablecer la contraseña de tu cuenta en CalypsoSpa. Si no has solicitado esto, por favor ignora este mensaje.
       <br>
       <br>
-			Si realmente has olvidado tu contraseña y deseas restablecerla, por favor sigue el enlace a continuación:
+    	Si realmente has olvidado tu contraseña y deseas restablecerla, por favor sigue el enlace a continuación:
       <br>
-	  	<a href="${backofficeURL}/reset-password?email=${email}&token=${token}">Reset Password</a>
+    	<a href="${backofficeURL}/reset-password?email=${email}&token=${token}">Reset Password</a>
       <br>
       <br>
-			Atentamente, CalypsoSpa.
+    	Atentamente, CalypsoSpa.
       <br>
-			<a href="https://wa.me/56991975494">+56 991975494</a>`,
+    	<a href="https://wa.me/56991975494">+56 991975494</a>`,
     });
   }
 }
