@@ -60,9 +60,11 @@ export class WorkersService {
     newWorker.services = foundServices;
     newWorker.room_schedules = foundRoomSchedules;
 
+    const result = await this.workerRepository.save(newWorker);
+
     await this.mailService.sendNewWorkerEmail(newWorker, newPassword);
 
-    return this.workerRepository.save(newWorker);
+    return result;
   }
 
   async findAll(complete: boolean = true, sensitive: boolean = false) {
