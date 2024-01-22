@@ -71,6 +71,8 @@ export class ReservationService {
     const { service_id, date } = body;
     let hours: HourCandidate[] = [];
 
+    const now = new Date();
+
     const user_date: Date = parseDateStringToDate(date);
     const dayOfWeek: number = getDay(user_date);
     const [day, month, year] = getDayMonthYearFromDate(user_date);
@@ -134,8 +136,10 @@ export class ReservationService {
       });
     }
 
+    const futureHours = hours.filter((entry) => isBefore(now, entry.start));
+
     const cleanedHours = new Set(
-      hours.map((hour) => timeOnDifferentTimeZone(hour.start)),
+      futureHours.map((hour) => timeOnDifferentTimeZone(hour.start)),
     );
     const availableHours = Array.from(cleanedHours);
 
@@ -146,6 +150,8 @@ export class ReservationService {
     const { service_id, date } = body;
     let hours: HourCandidate[] = [];
 
+    const now = new Date();
+
     const user_date: Date = parseDateStringToDate(date);
     const dayOfWeek: number = getDay(user_date);
     const [day, month, year] = getDayMonthYearFromDate(user_date);
@@ -209,8 +215,10 @@ export class ReservationService {
       });
     }
 
+    const futureHours = hours.filter((entry) => isBefore(now, entry.start));
+
     const cleanedHours = new Set(
-      hours.map((hour) => ({
+      futureHours.map((hour) => ({
         start: timeOnDifferentTimeZone(hour.start),
         end: timeOnDifferentTimeZone(hour.end),
         room_id: hour.room_id,
