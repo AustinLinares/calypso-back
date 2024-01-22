@@ -20,6 +20,7 @@ import { AppointmentByDateAndServiceDto } from './dto/appointment-by-date-and-se
 import {
   dateFromHoursAndData,
   getDayMonthYearFromDate,
+  parseDateAndTimeToDate,
   parseDateStringToDate,
 } from 'src/utils/timeFunctions';
 import { AppointmentByDateAndUserDto } from './dto/appointment-by-date-and-user.dto';
@@ -41,7 +42,13 @@ export class AppointmentsService {
 
   async create(appointment: CreateAppointmentDto) {
     const { email, name, phone } = appointment.user;
-    if (isBefore(parseDateStringToDate(appointment.date), new Date())) {
+
+    if (
+      isBefore(
+        parseDateAndTimeToDate(appointment.date, appointment.start_time),
+        new Date(),
+      )
+    ) {
       throw new HttpException(
         'You cant create a appointment in the past',
         HttpStatus.BAD_REQUEST,

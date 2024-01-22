@@ -1,4 +1,13 @@
-import { format, getDate, getMonth, getYear, parse, set } from 'date-fns';
+import {
+  format,
+  getDate,
+  getMonth,
+  getYear,
+  isBefore,
+  parse,
+  set,
+} from 'date-fns';
+import { date } from 'joi';
 
 export interface TimeRange {
   start: Date;
@@ -75,6 +84,24 @@ export function parseDateStringToDate(dateString: string) {
 
   return chileMidnight;
 }
+
+export function parseDateAndTimeToDate(dateString: string, timeString: string) {
+  const parsedDate = parse(dateString, 'dd-MM-yyyy', new Date());
+  const [hours, minutes, seconds] = timeString
+    .split(':')
+    .map((e) => parseInt(e));
+
+  const result = set(parsedDate, {
+    hours,
+    minutes,
+    seconds,
+    milliseconds: 0,
+  });
+
+  return result;
+}
+
+export function isBeforeThanNow(date: Date) {}
 
 export function timeOnDifferentTimeZone(date: Date) {
   const formattedTime = format(date, 'HH:mm');
