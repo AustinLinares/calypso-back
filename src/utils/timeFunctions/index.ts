@@ -1,13 +1,4 @@
-import {
-  format,
-  getDate,
-  getMonth,
-  getYear,
-  isBefore,
-  parse,
-  set,
-} from 'date-fns';
-import { date } from 'joi';
+import { format, getDate, getMonth, getYear, parse, set } from 'date-fns';
 
 export interface TimeRange {
   start: Date;
