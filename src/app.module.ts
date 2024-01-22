@@ -10,12 +10,10 @@ import { SchedulesModule } from './schedules/schedules.module';
 import { GroupsModule } from './groups/groups.module';
 import { RoomsModule } from './rooms/rooms.module';
 import { AuthModule } from './auth/auth.module';
-import { MailerModule } from '@nestjs-modules/mailer';
 import { MailModule } from './mail/mail.module';
 import { ConfigModule } from '@nestjs/config';
 import { CustomConfigModule } from './custom-config/config.module';
 import { TypeOrmConfigService } from './custom-config/type-orm-config/type-orm-config.service';
-import { MailerConfigService } from './custom-config/mailer-config/mailer-config.service';
 import { JwtConfigService } from './custom-config/jwt-config/jwt-config.service';
 import { RoleModule } from './role/role.module';
 import { ReservationModule } from './reservation/reservation.module';
@@ -33,9 +31,6 @@ import { validationSchema } from 'config/validation';
     }),
     TypeOrmModule.forRootAsync({
       useClass: TypeOrmConfigService,
-    }),
-    MailerModule.forRootAsync({
-      useClass: MailerConfigService,
     }),
     UsersModule,
     WorkersModule,
