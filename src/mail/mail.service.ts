@@ -12,11 +12,11 @@ export class MailService {
     private readonly configService: ConfigService,
   ) {}
 
-  sendAllowSeeAppointmentsEmail(user: User) {
-    const frontUrl = this.configService.get('FRONT_URL');
-    const mailUser = this.configService.get('MAIL_USER');
+  async sendAllowSeeAppointmentsEmail(user: User) {
+    const frontUrl: string = this.configService.get('FRONT_URL');
+    const mailUser: string = this.configService.get('MAIL_USER');
 
-    this.mailerService.sendMail({
+    await this.mailerService.sendMail({
       to: user.email,
       from: mailUser,
       subject: `Solicitud de historial de citas`,
@@ -45,11 +45,11 @@ export class MailService {
     });
   }
 
-  sendNewAppointmentEmail(appointment: Appointment) {
-    const frontUrl = this.configService.get('FRONT_URL');
-    const mailUser = this.configService.get('MAIL_USER');
+  async sendNewAppointmentEmail(appointment: Appointment) {
+    const frontUrl: string = this.configService.get('FRONT_URL');
+    const mailUser: string = this.configService.get('MAIL_USER');
 
-    this.mailerService.sendMail({
+    await this.mailerService.sendMail({
       to: appointment.user.email,
       from: mailUser,
       subject: `Confirmación de Reserva en CalypsoSpa`,
@@ -86,11 +86,11 @@ export class MailService {
     });
   }
 
-  sendNewWorkerEmail(worker: Worker, password: string) {
+  async sendNewWorkerEmail(worker: Worker, password: string) {
     const backofficeURL = this.configService.get('BACKOFFICE_URL');
     const mailUser = this.configService.get('MAIL_USER');
 
-    this.mailerService.sendMail({
+    await this.mailerService.sendMail({
       to: worker.email,
       from: mailUser,
       subject: `Bienvenido a CalypsoSpa`,
@@ -122,11 +122,11 @@ export class MailService {
     });
   }
 
-  sendForgotPasswordEmail(email: string, token: string) {
+  async sendForgotPasswordEmail(email: string, token: string) {
     const backofficeURL = this.configService.get('BACKOFFICE_URL');
     const mailUser = this.configService.get('MAIL_USER');
 
-    this.mailerService.sendMail({
+    await this.mailerService.sendMail({
       to: email,
       from: mailUser,
       subject: 'Forgot Password CalypsoSpa',

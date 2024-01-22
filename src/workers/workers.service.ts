@@ -60,7 +60,7 @@ export class WorkersService {
     newWorker.services = foundServices;
     newWorker.room_schedules = foundRoomSchedules;
 
-    this.mailService.sendNewWorkerEmail(newWorker, newPassword);
+    await this.mailService.sendNewWorkerEmail(newWorker, newPassword);
 
     return this.workerRepository.save(newWorker);
   }

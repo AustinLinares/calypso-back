@@ -101,7 +101,7 @@ export class AuthService {
       reset_token,
     });
 
-    this.mailService.sendForgotPasswordEmail(user.email, reset_token);
+    await this.mailService.sendForgotPasswordEmail(user.email, reset_token);
 
     return {
       message: 'The email was send',
