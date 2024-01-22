@@ -101,8 +101,6 @@ export function parseDateAndTimeToDate(dateString: string, timeString: string) {
   return result;
 }
 
-export function isBeforeThanNow(date: Date) {}
-
 export function timeOnDifferentTimeZone(date: Date) {
   const formattedTime = format(date, 'HH:mm');
 
