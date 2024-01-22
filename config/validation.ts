@@ -13,7 +13,7 @@ export const validationSchema = Joi.object({
   DB_PORT: Joi.number().default(3306),
   DB_NAME: Joi.string().default('calypso_db'),
   DB_PASSWORD: Joi.string().allow(null, '').default(''),
-  MAIL_HOST: Joi.string().default('smtp.gmail.com'),
+  MAIL_HOST: Joi.string().default('mail.calypsospa.cl'),
   MAIL_PORT: Joi.number().default(465),
   MAIL_USER: Joi.string().email().required(),
   MAIL_PASSWORD: Joi.string().required(),
